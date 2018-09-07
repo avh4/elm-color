@@ -1,6 +1,6 @@
 module Color exposing
     ( Color
-    , rgb
+    , rgba
     , fromRgba
     , toRgba
     )
@@ -15,7 +15,7 @@ module Color exposing
 
 ## Creating colors
 
-@docs rgb
+@docs rgba
 @docs fromRgba
 
 
@@ -32,23 +32,25 @@ type Color
     = RgbaSpace Float Float Float Float
 
 
-{-| Creates a color from RGB (red, green, blue) values between 0 and 255 (inclusive).
+{-| Creates a color from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
 
 The RGB values are interpretted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
 which is the color space specified to be meant by default by the HTML, CSS, and SVG specs.
+
+See also: [`fromRgba`](#fromRgba)
 
 -}
-rgb : Int -> Int -> Int -> Color
-rgb r g b =
-    RgbaSpace 0 0 0 0
+rgba : Float -> Float -> Float -> Float -> Color
+rgba r g b a =
+    RgbaSpace r g b a
 
 
-{-| Created a color from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
+{-| Creates a color from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
 
 The RGB values are interpretted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
 which is the color space specified to be meant by default by the HTML, CSS, and SVG specs.
 
-If you want alpha=1.0 (full opacity), you might want to use [`rgb`](#rgb) to be more concise.
+See also: [`rgba`](#rgba)
 
 -}
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color

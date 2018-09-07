@@ -41,15 +41,27 @@ all =
                 let
                     color : Color
                     color =
-                        Color.rgb 0 0 0
+                        Color.rgba 0 0 0 0
                 in
                 color
                     |> Expect.equal color
         , fuzz (tuple2 (tuple3 unit unit unit) unit)
-            "can represent RGBA colors"
+            "can represent RGBA colors (fromRgba)"
           <|
             \( ( r, g, b ), a ) ->
                 Color.fromRgba { red = r, green = g, blue = b, alpha = a }
+                    |> Color.toRgba
+                    |> Expect.all
+                        [ .red >> Expect.within (Absolute 0.000001) r
+                        , .green >> Expect.within (Absolute 0.000001) g
+                        , .blue >> Expect.within (Absolute 0.000001) b
+                        , .alpha >> Expect.within (Absolute 0.000001) a
+                        ]
+        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+            "can represent RGBA colors (rgba)"
+          <|
+            \( ( r, g, b ), a ) ->
+                Color.rgba r g b a
                     |> Color.toRgba
                     |> Expect.all
                         [ .red >> Expect.within (Absolute 0.000001) r
