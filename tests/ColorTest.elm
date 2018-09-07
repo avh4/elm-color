@@ -3,6 +3,7 @@ module ColorTest exposing (all)
 import Color exposing (Color)
 import Expect exposing (FloatingPointTolerance(..))
 import Fuzz exposing (Fuzzer, floatRange)
+import Hex
 import Test exposing (..)
 
 
@@ -25,6 +26,16 @@ tuple2 a b =
 tuple3 : Fuzzer a -> Fuzzer b -> Fuzzer c -> Fuzzer ( a, b, c )
 tuple3 a b c =
     Fuzz.tuple3 ( a, b, c )
+
+
+hex : Fuzzer Char
+hex =
+    Fuzz.oneOf (List.map Fuzz.constant <| String.toList "0123456789abcdefABCDEF")
+
+
+hex2 : Fuzzer String
+hex2 =
+    Fuzz.map2 (\a b -> String.fromList [ a, b ]) hex hex
 
 
 
@@ -81,4 +92,18 @@ all =
                         , .blue >> Expect.within (Absolute 0.000001) b
                         , .alpha >> Expect.equal 1.0
                         ]
+        , describe "can convert hex strings"
+            [ fuzz (tuple3 hex2 hex2 hex2)
+                "6-digit string without #"
+              <|
+                \( r, g, b ) ->
+                    Color.fromHex (String.concat [ r, g, b ])
+                        |> Color.toRgba
+                        |> Expect.all
+                            [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower r) |> Result.map (\x -> toFloat x / 255))
+                            , .green >> Ok >> Expect.equal (Hex.fromString (String.toLower g) |> Result.map (\x -> toFloat x / 255))
+                            , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower b) |> Result.map (\x -> toFloat x / 255))
+                            , .alpha >> Expect.equal 1.0
+                            ]
+            ]
         ]
