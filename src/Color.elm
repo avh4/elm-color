@@ -1,7 +1,7 @@
 module Color exposing
     ( Color
-    , fromRgba
-    , rgba, rgb, rgb255
+    , fromRgba, rgba, rgb
+    , rgb255
     , fromHsla, hsla, hsl
     , fromHex
     , toRgba
@@ -130,19 +130,60 @@ See also: [`fromHsla`](#fromHsla)
 
 -}
 hsla : Float -> Float -> Float -> Float -> Color
-hsla h s l a =
+hsla hue sat light alpha =
     let
-        chroma = 0
-        r =
-            0
+        chroma =
+            (1 - abs (2 * light - 1)) * sat
 
-        g =
-            0
+        normHue =
+            hue / degrees 60
 
-        b =
-            0
+        x =
+            chroma * (1 - abs (floatModBy 2 normHue - 1))
+
+        m =
+            light - chroma / 2
+
+        ( r, g, b ) =
+            if normHue < 0 then
+                ( 0, 0, 0 )
+
+            else if normHue < 1 then
+                ( chroma, x, 0 )
+
+            else if normHue < 2 then
+                ( x, chroma, 0 )
+
+            else if normHue < 3 then
+                ( 0, chroma, x )
+
+            else if normHue < 4 then
+                ( 0, x, chroma )
+
+            else if normHue < 5 then
+                ( x, 0, chroma )
+
+            else if normHue < 6 then
+                ( chroma, 0, x )
+
+            else
+                ( 0, 0, 0 )
     in
-    rgba r g b a
+    rgba (r + m) (g + m) (b + m) alpha
+
+
+{-| Taken from <http://www.cplusplus.com/reference/cmath/fmod/>.
+-}
+floatModBy : Int -> Float -> Float
+floatModBy denom n =
+    let
+        fdenom =
+            toFloat denom
+
+        quot =
+            toFloat <| floor (n / fdenom)
+    in
+    n - quot * fdenom
 
 
 {-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
