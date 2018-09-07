@@ -2,6 +2,7 @@ module Color exposing
     ( Color
     , fromRgba
     , rgba, rgb, rgb255
+    , fromHsla, hsla, hsl
     , fromHex
     , toRgba
     , toHex
@@ -9,7 +10,7 @@ module Color exposing
 
 {-| Module for working with colors. Allows creating colors via either
 [sRGB](https://en.wikipedia.org/wiki/RGB_color_model) values
-[HSL](http://en.wikipedia.org/wiki/HSL_and_HSV) values, or
+[HSL](https://en.wikipedia.org/wiki/HSL_and_HSV) values, or
 [Hex strings](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet).
 
 
@@ -24,8 +25,9 @@ All color construction functions guarantee to only construct valid color values 
 If you happen to pass channel values that are out of range, then they will be clamped between
 0.0 and 1.0, or 0 and 255 respectively.
 
-@docs fromRgba
-@docs rgba, rgb, rgb255
+@docs fromRgba, rgba, rgb
+@docs rgb255
+@docs fromHsla, hsla, hsl
 @docs fromHex
 
 
@@ -50,16 +52,14 @@ type Color
 The RGB values are interpreted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
 which is the standard for the Internet (HTML, CSS, and SVG), as well as digital images and printing.
 
+This is a strict function that will force you to name all channel parameters, to avoid mixing them up.
+
 See also: [`rgba`](#rgba)
 
 -}
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
 fromRgba { red, green, blue, alpha } =
-    RgbaSpace
-        (clamp 0 1 red)
-        (clamp 0 1 green)
-        (clamp 0 1 blue)
-        (clamp 0 1 alpha)
+    rgba red green blue alpha
 
 
 {-| Creates a `Color` from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
@@ -71,7 +71,11 @@ See also: [`fromRgba`](#fromRgba)
 -}
 rgba : Float -> Float -> Float -> Float -> Color
 rgba r g b a =
-    fromRgba { red = r, green = g, blue = b, alpha = a }
+    RgbaSpace
+        (clamp 0 1 r)
+        (clamp 0 1 g)
+        (clamp 0 1 b)
+        (clamp 0 1 a)
 
 
 {-| Creates a color from RGB (red, green, blue) values between 0.0 and 1.0 (inclusive).
@@ -93,17 +97,65 @@ This is a convenience function if you find passing RGB channels as integers scal
 Note that this is less fine-grained than passing the channels as `Float` between 0.0 and 1.0, since
 there are only 2^8=256 possible values for each channel.
 
-See also: [`rgba`](#rgba)
-
 -}
 rgb255 : Int -> Int -> Int -> Color
 rgb255 r g b =
-    rgb (scaleChannel r) (scaleChannel g) (scaleChannel b)
+    rgb (scaleFrom255 r) (scaleFrom255 g) (scaleFrom255 b)
 
 
-scaleChannel : Int -> Float
-scaleChannel c =
+scaleFrom255 : Int -> Float
+scaleFrom255 c =
     toFloat c / 255
+
+
+{-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
+values between 0.0 and 1.0 (inclusive).
+
+This is a strict function that will force you to name all channel parameters, to avoid mixing them up.
+
+See also: [`hsla`](#hsla)
+
+-}
+fromHsla : { hue : Float, saturation : Float, lightness : Float, alpha : Float } -> Color
+fromHsla { hue, saturation, lightness, alpha } =
+    hsla hue saturation lightness alpha
+
+
+{-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
+values between 0.0 and 1.0 (inclusive).
+
+This is a convenience function to construct colors from HSLA without needing to construct a record first.
+
+See also: [`fromHsla`](#fromHsla)
+
+-}
+hsla : Float -> Float -> Float -> Float -> Color
+hsla h s l a =
+    let
+        chroma = 0
+        r =
+            0
+
+        g =
+            0
+
+        b =
+            0
+    in
+    rgba r g b a
+
+
+{-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
+values between 0.0 and 1.0 (inclusive).
+
+This is a convenience function to construct colors from HSL without needing to construct a record first.
+
+See also: [`hsla`](#hsla)
+
+-}
+hsl : Float -> Float -> Float -> Color
+hsl h s l =
+    hsla h s l 1.0
 
 
 {-| Extract the RGBA (red, green, blue, alpha) components out of a `Color` value.
