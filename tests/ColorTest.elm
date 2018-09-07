@@ -69,4 +69,16 @@ all =
                         , .blue >> Expect.within (Absolute 0.000001) b
                         , .alpha >> Expect.within (Absolute 0.000001) a
                         ]
+        , fuzz (tuple3 unit unit unit)
+            "can represent RGBA colors (rgb)"
+          <|
+            \( r, g, b ) ->
+                Color.rgb r g b
+                    |> Color.toRgba
+                    |> Expect.all
+                        [ .red >> Expect.within (Absolute 0.000001) r
+                        , .green >> Expect.within (Absolute 0.000001) g
+                        , .blue >> Expect.within (Absolute 0.000001) b
+                        , .alpha >> Expect.equal 1.0
+                        ]
         ]
