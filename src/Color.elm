@@ -32,6 +32,7 @@ If you happen to pass channel values that are out of range, then they will be cl
 # Extracing values back out of colors
 
 @docs toRgba
+@docs toHex
 
 -}
 
@@ -203,12 +204,12 @@ hexToInt char =
             Nothing
 
 
-{-| This function will convert a color to hexadecimal string
+{-| This function will convert a color to 6-digit hexadecimal string, commonly used in web development.
 -}
 toHex : Color -> String
 toHex c =
     let
-        { red, green, blue, alpha } =
+        { red, green, blue } =
             toRgba c
     in
     [ red, green, blue ]
