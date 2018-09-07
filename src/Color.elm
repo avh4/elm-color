@@ -251,10 +251,7 @@ unsafeInt255Digits n =
 
 unsafeIntToChar : Int -> Char
 unsafeIntToChar i =
-    if i < 0 || i > 15 then
-        '0'
-
-    else if i < 10 then
+    if i < 10 then
         String.fromInt i
             |> String.uncons
             |> Maybe.map Tuple.first
