@@ -1,27 +1,35 @@
 module Color exposing
     ( Color
     , fromRgba
-    , rgba, rgb
+    , rgba, rgb, rgb255
     , fromHex
     , toRgba
+    , toHex
     )
 
-{-|
+{-| Module for working with colors. Allows creating colors via either
+[sRGB](https://en.wikipedia.org/wiki/RGB_color_model) values
+[HSL](http://en.wikipedia.org/wiki/HSL_and_HSV) values, or
+[Hex strings](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet).
 
 
-## Types
+# Types
 
 @docs Color
 
 
-## Creating colors
+# Creating colors
+
+All color construction functions guarantee to only construct valid color values for you.
+If you happen to pass channel values that are out of range, then they will be clamped between
+0.0 and 1.0, or 0 and 255 respectively.
 
 @docs fromRgba
-@docs rgba, rgb
+@docs rgba, rgb, rgb255
 @docs fromHex
 
 
-## Converting colors to numbers
+# Extracing values back out of colors
 
 @docs toRgba
 
@@ -34,28 +42,6 @@ import Bitwise exposing (shiftLeftBy)
 -}
 type Color
     = RgbaSpace Float Float Float Float
-
-
-{-| Creates a `Color` from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
-
-This is a convenience function for making a color value without needing to use a record.
-
-See also: [`fromRgba`](#fromRgba)
-
--}
-rgba : Float -> Float -> Float -> Float -> Color
-rgba r g b a =
-    fromRgba { red = r, green = g, blue = b, alpha = a }
-
-
-{-| Creates a color from RGB (red, green, blue) values between 0.0 and 1.0 (inclusive).
-
-See also: [`rgba`](#rgba)
-
--}
-rgb : Float -> Float -> Float -> Color
-rgb r g b =
-    rgba r g b 1.0
 
 
 {-| Creates a color from a record of RGBA values (red, green, blue, alpha) between 0.0 and 1.0 (inclusive).
@@ -75,11 +61,55 @@ fromRgba { red, green, blue, alpha } =
         (clamp 0 1 alpha)
 
 
-{-| Extract the RGBA (red, green, blue, alpha) components from a `Color`.
+{-| Creates a `Color` from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
+
+This is a convenience function for making a color value without needing to use a record.
+
+See also: [`fromRgba`](#fromRgba)
+
+-}
+rgba : Float -> Float -> Float -> Float -> Color
+rgba r g b a =
+    fromRgba { red = r, green = g, blue = b, alpha = a }
+
+
+{-| Creates a color from RGB (red, green, blue) values between 0.0 and 1.0 (inclusive).
+
+This is a convenience function for making a color value with full opacity.
+
+See also: [`rgba`](#rgba)
+
+-}
+rgb : Float -> Float -> Float -> Color
+rgb r g b =
+    rgba r g b 1.0
+
+
+{-| Creates a color from RGB (red, green, blue) 8-bit integer values between 0 and 255.
+
+This is a convenience function if you find passing RGB channels as integers scaled to 255 more intuitive.
+
+Note that this is less fine-grained than passing the channels as `Float` between 0.0 and 1.0, since
+there are only 2^8=256 possible values for each channel.
+
+See also: [`rgba`](#rgba)
+
+-}
+rgb255 : Int -> Int -> Int -> Color
+rgb255 r g b =
+    rgb (scaleChannel r) (scaleChannel g) (scaleChannel b)
+
+
+scaleChannel : Int -> Float
+scaleChannel c =
+    toFloat c / 255
+
+
+{-| Extract the RGBA (red, green, blue, alpha) components out of a `Color` value.
 The component values will be between 0.0 and 1.0 (inclusive).
 
-The values produces represent the color in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
-which is the color space specified to be meant by default by the HTML, CSS, and SVG specs.
+The RGB values are interpreted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
+which is the standard for the Internet (HTML, CSS, and SVG), as well as digital images and printing.
 
 -}
 toRgba : Color -> { red : Float, green : Float, blue : Float, alpha : Float }
@@ -171,3 +201,83 @@ hexToInt char =
 
         _ ->
             Nothing
+
+
+{-| This function will convert a color to hexadecimal string
+-}
+toHex : Color -> String
+toHex c =
+    let
+        { red, green, blue, alpha } =
+            toRgba c
+    in
+    [ red, green, blue ]
+        |> List.map ((*) 255)
+        |> List.map round
+        |> List.map int255ToHex
+        |> String.concat
+
+
+int255ToHex : Int -> String
+int255ToHex n =
+    if n < 0 then
+        "00"
+
+    else if n > 255 then
+        "ff"
+
+    else
+        unsafeInt255Digits n
+            |> Tuple.mapBoth unsafeIntToChar unsafeIntToChar
+            |> (\( a, b ) -> String.cons a (String.cons b ""))
+
+
+unsafeInt255Digits : Int -> ( Int, Int )
+unsafeInt255Digits n =
+    let
+        digit1 =
+            n // 16
+
+        digit0 =
+            if digit1 /= 0 then
+                modBy (digit1 * 16) n
+
+            else
+                n
+    in
+    ( digit1, digit0 )
+
+
+unsafeIntToChar : Int -> Char
+unsafeIntToChar i =
+    if i < 0 || i > 15 then
+        '0'
+
+    else if i < 10 then
+        String.fromInt i
+            |> String.uncons
+            |> Maybe.map Tuple.first
+            |> Maybe.withDefault '0'
+
+    else
+        case i of
+            10 ->
+                'a'
+
+            11 ->
+                'b'
+
+            12 ->
+                'c'
+
+            13 ->
+                'd'
+
+            14 ->
+                'e'
+
+            15 ->
+                'f'
+
+            _ ->
+                '0'
