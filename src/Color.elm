@@ -1,7 +1,7 @@
 module Color exposing
     ( Color
-    , rgba, rgb
     , fromRgba
+    , rgba, rgb
     , fromHex
     , toRgba
     )
@@ -16,8 +16,8 @@ module Color exposing
 
 ## Creating colors
 
-@docs rgba, rgb
 @docs fromRgba
+@docs rgba, rgb
 @docs fromHex
 
 
@@ -36,43 +36,43 @@ type Color
     = RgbaSpace Float Float Float Float
 
 
-{-| Creates a color from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
+{-| Creates a `Color` from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
 
-The RGB values are interpretted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
-which is the color space specified to be meant by default by the HTML, CSS, and SVG specs.
+This is a convenience function for making a color value without needing to use a record.
 
 See also: [`fromRgba`](#fromRgba)
 
 -}
 rgba : Float -> Float -> Float -> Float -> Color
 rgba r g b a =
-    RgbaSpace r g b a
+    fromRgba { red = r, green = g, blue = b, alpha = a }
 
 
 {-| Creates a color from RGB (red, green, blue) values between 0.0 and 1.0 (inclusive).
-
-The RGB values are interpretted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
-which is the color space specified to be meant by default by the HTML, CSS, and SVG specs.
 
 See also: [`rgba`](#rgba)
 
 -}
 rgb : Float -> Float -> Float -> Color
 rgb r g b =
-    RgbaSpace r g b 1.0
+    rgba r g b 1.0
 
 
-{-| Creates a color from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
+{-| Creates a color from a record of RGBA values (red, green, blue, alpha) between 0.0 and 1.0 (inclusive).
 
-The RGB values are interpretted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
-which is the color space specified to be meant by default by the HTML, CSS, and SVG specs.
+The RGB values are interpreted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
+which is the standard for the Internet (HTML, CSS, and SVG), as well as digital images and printing.
 
 See also: [`rgba`](#rgba)
 
 -}
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
 fromRgba { red, green, blue, alpha } =
-    RgbaSpace red green blue alpha
+    RgbaSpace
+        (clamp 0 1 red)
+        (clamp 0 1 green)
+        (clamp 0 1 blue)
+        (clamp 0 1 alpha)
 
 
 {-| Extract the RGBA (red, green, blue, alpha) components from a `Color`.
