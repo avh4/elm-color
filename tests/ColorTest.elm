@@ -1,6 +1,7 @@
 module ColorTest exposing (all)
 
 import Color exposing (Color)
+import CssHslReference
 import Expect exposing (FloatingPointTolerance(..))
 import Fuzz exposing (Fuzzer, floatRange, intRange)
 import Hex
@@ -141,4 +142,28 @@ all =
                                 )
                         , .alpha >> Expect.within (Absolute 0.000001) a
                         ]
+        , describe "color reference" <|
+            let
+                testHslToRgb i info =
+                    test (String.fromInt i ++ ": " ++ Debug.toString info) <|
+                        \() ->
+                            Color.hsl (toFloat info.h / 360) (toFloat info.s / 100) (toFloat info.l / 100)
+                                |> Color.toRgba
+                                |> (\c ->
+                                        { red = c.red * 255 |> floor
+                                        , green = c.green * 255 |> floor
+                                        , blue = c.blue * 255 |> floor
+                                        , alpha = c.alpha
+                                        }
+                                   )
+                                |> Expect.equal
+                                    { red = info.r
+                                    , blue = info.b
+                                    , green = info.g
+                                    , alpha = 1.0
+                                    }
+            in
+            [ describe "HSL to RGB" <|
+                List.indexedMap testHslToRgb CssHslReference.all
+            ]
         ]
