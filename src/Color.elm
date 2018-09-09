@@ -200,7 +200,7 @@ hexToInt char =
             Nothing
 
 
-{-| This function will convert a color to hexadecimal string in the format `#rrggbb`.
+{-| This function will convert a color to a 6-digit hexadecimal string in the format `#rrggbb`.
 -}
 toHex : Color -> { hex : String, alpha : Float }
 toHex c =
