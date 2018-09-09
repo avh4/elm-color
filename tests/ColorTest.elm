@@ -109,18 +109,21 @@ all =
                         , .blue >> Expect.within (Absolute 0.000001) (toFloat b / 255)
                         , .alpha >> Expect.equal 1.0
                         ]
-        , describe "can convert from hex strings"
+        , describe "can convert from hex strings" <|
+            let
+                hashPrefix bool string =
+                    if bool then
+                        "#" ++ string
+
+                    else
+                        string
+            in
             [ fuzz (tuple2 bool (tuple3 hex2 hex2 hex2))
                 "6-digit string"
               <|
                 \( withHash, ( r, g, b ) ) ->
                     String.concat [ r, g, b ]
-                        |> (if withHash then
-                                \x -> "#" ++ x
-
-                            else
-                                identity
-                           )
+                        |> hashPrefix withHash
                         |> Color.fromHex
                         |> Color.toRgba
                         |> Expect.all
@@ -134,12 +137,7 @@ all =
               <|
                 \( withHash, ( r, g, b ) ) ->
                     String.fromList [ r, g, b ]
-                        |> (if withHash then
-                                \x -> "#" ++ x
-
-                            else
-                                identity
-                           )
+                        |> hashPrefix withHash
                         |> Color.fromHex
                         |> Color.toRgba
                         |> Expect.all
