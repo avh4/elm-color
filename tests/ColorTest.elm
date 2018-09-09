@@ -205,9 +205,9 @@ all =
                             Color.hsl (toFloat info.h / 360) (toFloat info.s / 100) (toFloat info.l / 100)
                                 |> Color.toRgba
                                 |> Expect.all
-                                    [ .red >> Expect.within (Absolute (3 / 255)) (toFloat info.r / 255)
-                                    , .green >> Expect.within (Absolute (3 / 255)) (toFloat info.g / 255)
-                                    , .blue >> Expect.within (Absolute (3 / 255)) (toFloat info.b / 255)
+                                    [ .red >> Expect.within (Absolute (2.800001 / 255)) (toFloat info.r / 255)
+                                    , .green >> Expect.within (Absolute (2.800001 / 255)) (toFloat info.g / 255)
+                                    , .blue >> Expect.within (Absolute (2.800001 / 255)) (toFloat info.b / 255)
                                     , .alpha >> Expect.equal 1.0
                                     ]
             in
