@@ -3,7 +3,7 @@ module ColorTest exposing (all)
 import Color exposing (Color)
 import CssHslReference
 import Expect exposing (FloatingPointTolerance(..))
-import Fuzz exposing (Fuzzer, floatRange, intRange)
+import Fuzz exposing (Fuzzer, bool, floatRange, intRange)
 import Hex
 import Test exposing (..)
 
@@ -110,18 +110,73 @@ all =
                         , .blue >> Expect.within (Absolute 0.000001) (toFloat b / 255)
                         , .alpha >> Expect.equal 1.0
                         ]
-        , describe "can convert from hex strings"
-            [ fuzz (tuple3 hex2 hex2 hex2)
-                "6-digit string without #"
+        , describe "can convert from hex strings" <|
+            let
+                hashPrefix bool string =
+                    if bool then
+                        "#" ++ string
+
+                    else
+                        string
+
+                hex2ToUnit string =
+                    Hex.fromString (String.toLower string) |> Result.map (\x -> toFloat x / 255)
+            in
+            [ fuzz (tuple2 bool (tuple3 hex2 hex2 hex2))
+                "6-digit string"
               <|
-                \( r, g, b ) ->
-                    Color.fromHex (String.concat [ r, g, b ])
+                \( withHash, ( r, g, b ) ) ->
+                    String.concat [ r, g, b ]
+                        |> hashPrefix withHash
+                        |> Color.fromHex
                         |> Color.toRgba
                         |> Expect.all
-                            [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower r) |> Result.map (\x -> toFloat x / 255))
-                            , .green >> Ok >> Expect.equal (Hex.fromString (String.toLower g) |> Result.map (\x -> toFloat x / 255))
-                            , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower b) |> Result.map (\x -> toFloat x / 255))
+                            [ .red >> Ok >> Expect.equal (hex2ToUnit r)
+                            , .green >> Ok >> Expect.equal (hex2ToUnit g)
+                            , .blue >> Ok >> Expect.equal (hex2ToUnit b)
                             , .alpha >> Expect.equal 1.0
+                            ]
+            , fuzz (tuple2 bool (tuple3 hex hex hex))
+                "3-digit string"
+              <|
+                \( withHash, ( r, g, b ) ) ->
+                    String.fromList [ r, g, b ]
+                        |> hashPrefix withHash
+                        |> Color.fromHex
+                        |> Color.toRgba
+                        |> Expect.all
+                            [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])
+                            , .green >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ g, g ])
+                            , .blue >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ b, b ])
+                            , .alpha >> Expect.equal 1.0
+                            ]
+            , fuzz (tuple3 bool (tuple3 hex2 hex2 hex2) hex2)
+                "8-digit string"
+              <|
+                \( withHash, ( r, g, b ), a ) ->
+                    String.concat [ r, g, b, a ]
+                        |> hashPrefix withHash
+                        |> Color.fromHex
+                        |> Color.toRgba
+                        |> Expect.all
+                            [ .red >> Ok >> Expect.equal (hex2ToUnit r)
+                            , .green >> Ok >> Expect.equal (hex2ToUnit g)
+                            , .blue >> Ok >> Expect.equal (hex2ToUnit b)
+                            , .alpha >> Ok >> Expect.equal (hex2ToUnit a)
+                            ]
+            , fuzz (tuple3 bool (tuple3 hex hex hex) hex)
+                "4-digit string"
+              <|
+                \( withHash, ( r, g, b ), a ) ->
+                    String.fromList [ r, g, b, a ]
+                        |> hashPrefix withHash
+                        |> Color.fromHex
+                        |> Color.toRgba
+                        |> Expect.all
+                            [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])
+                            , .green >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ g, g ])
+                            , .blue >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ b, b ])
+                            , .alpha >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ a, a ])
                             ]
             ]
         , fuzz (tuple2 (tuple3 int255 int255 int255) unit)

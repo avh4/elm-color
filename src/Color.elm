@@ -213,24 +213,51 @@ If the string given is not a valid 3-, 4-, 6-, or 8-digit hex string,
 then this function will return `rgba 0 0 0 1`
 -}
 fromHex : String -> Color
-fromHex hex =
+fromHex hexString =
     Maybe.withDefault (RgbaSpace 0 0 0 0) <|
-        case String.toList hex of
+        case String.toList hexString of
+            [ '#', r, g, b ] ->
+                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( 'f', 'f' )
+
+            [ r, g, b ] ->
+                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( 'f', 'f' )
+
+            [ '#', r, g, b, a ] ->
+                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( a, a )
+
+            [ r, g, b, a ] ->
+                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( a, a )
+
+            [ '#', r1, r2, g1, g2, b1, b2 ] ->
+                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( 'f', 'f' )
+
             [ r1, r2, g1, g2, b1, b2 ] ->
-                Maybe.map3
-                    (\r g b ->
-                        RgbaSpace
-                            (toFloat r / 255)
-                            (toFloat g / 255)
-                            (toFloat b / 255)
-                            1.0
-                    )
-                    (hex2ToInt r1 r2)
-                    (hex2ToInt g1 g2)
-                    (hex2ToInt b1 b2)
+                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( 'f', 'f' )
+
+            [ '#', r1, r2, g1, g2, b1, b2, a1, a2 ] ->
+                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 )
+
+            [ r1, r2, g1, g2, b1, b2, a1, a2 ] ->
+                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 )
 
             _ ->
                 Nothing
+
+
+fromHex8 : ( Char, Char ) -> ( Char, Char ) -> ( Char, Char ) -> ( Char, Char ) -> Maybe Color
+fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 ) =
+    Maybe.map4
+        (\r g b a ->
+            RgbaSpace
+                (toFloat r / 255)
+                (toFloat g / 255)
+                (toFloat b / 255)
+                (toFloat a / 255)
+        )
+        (hex2ToInt r1 r2)
+        (hex2ToInt g1 g2)
+        (hex2ToInt b1 b2)
+        (hex2ToInt a1 a2)
 
 
 hex2ToInt : Char -> Char -> Maybe Int
