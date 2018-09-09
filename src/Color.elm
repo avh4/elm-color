@@ -32,6 +32,7 @@ If you happen to pass channel values that are out of range, then they will be cl
 # Extracing values back out of colors
 
 @docs toRgba
+@docs toHex
 
 -}
 

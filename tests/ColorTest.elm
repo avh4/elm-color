@@ -2,7 +2,7 @@ module ColorTest exposing (all)
 
 import Color exposing (Color)
 import Expect exposing (FloatingPointTolerance(..))
-import Fuzz exposing (Fuzzer, floatRange)
+import Fuzz exposing (Fuzzer, floatRange, intRange)
 import Hex
 import Test exposing (..)
 
@@ -16,6 +16,11 @@ import Test exposing (..)
 unit : Fuzzer Float
 unit =
     floatRange 0 1
+
+
+int255 : Fuzzer Int
+int255 =
+    intRange 0 255
 
 
 tuple2 : Fuzzer a -> Fuzzer b -> Fuzzer ( a, b )
@@ -90,6 +95,18 @@ all =
                         [ .red >> Expect.within (Absolute 0.000001) r
                         , .green >> Expect.within (Absolute 0.000001) g
                         , .blue >> Expect.within (Absolute 0.000001) b
+                        , .alpha >> Expect.equal 1.0
+                        ]
+        , fuzz (tuple3 int255 int255 int255)
+            "can represent RGB255 colors"
+          <|
+            \( r, g, b ) ->
+                Color.rgb255 r g b
+                    |> Color.toRgba
+                    |> Expect.all
+                        [ .red >> Expect.within (Absolute 0.000001) (toFloat r / 255)
+                        , .green >> Expect.within (Absolute 0.000001) (toFloat g / 255)
+                        , .blue >> Expect.within (Absolute 0.000001) (toFloat b / 255)
                         , .alpha >> Expect.equal 1.0
                         ]
         , describe "can convert hex strings"
