@@ -117,6 +117,9 @@ all =
 
                     else
                         string
+
+                hex2ToUnit string =
+                    Hex.fromString (String.toLower string) |> Result.map (\x -> toFloat x / 255)
             in
             [ fuzz (tuple2 bool (tuple3 hex2 hex2 hex2))
                 "6-digit string"
@@ -127,9 +130,9 @@ all =
                         |> Color.fromHex
                         |> Color.toRgba
                         |> Expect.all
-                            [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower r) |> Result.map (\x -> toFloat x / 255))
-                            , .green >> Ok >> Expect.equal (Hex.fromString (String.toLower g) |> Result.map (\x -> toFloat x / 255))
-                            , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower b) |> Result.map (\x -> toFloat x / 255))
+                            [ .red >> Ok >> Expect.equal (hex2ToUnit r)
+                            , .green >> Ok >> Expect.equal (hex2ToUnit g)
+                            , .blue >> Ok >> Expect.equal (hex2ToUnit b)
                             , .alpha >> Expect.equal 1.0
                             ]
             , fuzz (tuple2 bool (tuple3 hex hex hex))
@@ -141,9 +144,9 @@ all =
                         |> Color.fromHex
                         |> Color.toRgba
                         |> Expect.all
-                            [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ r, r ]) |> Result.map (\x -> toFloat x / 255))
-                            , .green >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ g, g ]) |> Result.map (\x -> toFloat x / 255))
-                            , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ b, b ]) |> Result.map (\x -> toFloat x / 255))
+                            [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])
+                            , .green >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ g, g ])
+                            , .blue >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ b, b ])
                             , .alpha >> Expect.equal 1.0
                             ]
             , fuzz (tuple3 bool (tuple3 hex2 hex2 hex2) hex2)
@@ -155,10 +158,10 @@ all =
                         |> Color.fromHex
                         |> Color.toRgba
                         |> Expect.all
-                            [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower r) |> Result.map (\x -> toFloat x / 255))
-                            , .green >> Ok >> Expect.equal (Hex.fromString (String.toLower g) |> Result.map (\x -> toFloat x / 255))
-                            , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower b) |> Result.map (\x -> toFloat x / 255))
-                            , .alpha >> Ok >> Expect.equal (Hex.fromString (String.toLower a) |> Result.map (\x -> toFloat x / 255))
+                            [ .red >> Ok >> Expect.equal (hex2ToUnit r)
+                            , .green >> Ok >> Expect.equal (hex2ToUnit g)
+                            , .blue >> Ok >> Expect.equal (hex2ToUnit b)
+                            , .alpha >> Ok >> Expect.equal (hex2ToUnit a)
                             ]
             , fuzz (tuple3 bool (tuple3 hex hex hex) hex)
                 "4-digit string"
@@ -169,10 +172,10 @@ all =
                         |> Color.fromHex
                         |> Color.toRgba
                         |> Expect.all
-                            [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ r, r ]) |> Result.map (\x -> toFloat x / 255))
-                            , .green >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ g, g ]) |> Result.map (\x -> toFloat x / 255))
-                            , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ b, b ]) |> Result.map (\x -> toFloat x / 255))
-                            , .alpha >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ a, a ]) |> Result.map (\x -> toFloat x / 255))
+                            [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])
+                            , .green >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ g, g ])
+                            , .blue >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ b, b ])
+                            , .alpha >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ a, a ])
                             ]
             ]
         , fuzz (tuple2 (tuple3 int255 int255 int255) unit)
