@@ -204,19 +204,12 @@ all =
                         \() ->
                             Color.hsl (toFloat info.h / 360) (toFloat info.s / 100) (toFloat info.l / 100)
                                 |> Color.toRgba
-                                |> (\c ->
-                                        { red = c.red * 255 |> floor
-                                        , green = c.green * 255 |> floor
-                                        , blue = c.blue * 255 |> floor
-                                        , alpha = c.alpha
-                                        }
-                                   )
-                                |> Expect.equal
-                                    { red = info.r
-                                    , blue = info.b
-                                    , green = info.g
-                                    , alpha = 1.0
-                                    }
+                                |> Expect.all
+                                    [ .red >> Expect.within (Absolute (3 / 255)) (toFloat info.r / 255)
+                                    , .green >> Expect.within (Absolute (3 / 255)) (toFloat info.g / 255)
+                                    , .blue >> Expect.within (Absolute (3 / 255)) (toFloat info.b / 255)
+                                    , .alpha >> Expect.equal 1.0
+                                    ]
             in
             [ describe "HSL to RGB" <|
                 List.indexedMap testHslToRgb CssHslReference.all

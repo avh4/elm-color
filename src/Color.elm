@@ -128,58 +128,53 @@ See also: [`fromHsla`](#fromHsla)
 hsla : Float -> Float -> Float -> Float -> Color
 hsla hue sat light alpha =
     let
-        chroma =
-            (1 - abs (2 * light - 1)) * sat
+        ( h, s, l ) =
+            ( hue, sat, light )
 
-        normHue =
-            hue / degrees 60
-
-        x =
-            chroma * (1 - abs (floatModBy 2 normHue - 1))
-
-        m =
-            light - chroma / 2
-
-        ( r, g, b ) =
-            if normHue < 0 then
-                ( 0, 0, 0 )
-
-            else if normHue < 1 then
-                ( chroma, x, 0 )
-
-            else if normHue < 2 then
-                ( x, chroma, 0 )
-
-            else if normHue < 3 then
-                ( 0, chroma, x )
-
-            else if normHue < 4 then
-                ( 0, x, chroma )
-
-            else if normHue < 5 then
-                ( x, 0, chroma )
-
-            else if normHue < 6 then
-                ( chroma, 0, x )
+        m2 =
+            if l <= 0.5 then
+                l * (s + 1)
 
             else
-                ( 0, 0, 0 )
+                l + s - l * s
+
+        m1 =
+            l * 2 - m2
+
+        r =
+            hueToRgb (h + 1 / 3)
+
+        g =
+            hueToRgb h
+
+        b =
+            hueToRgb (h - 1 / 3)
+
+        hueToRgb h__ =
+            let
+                h_ =
+                    if h__ < 0 then
+                        h__ + 1
+
+                    else if h__ > 1 then
+                        h__ - 1
+
+                    else
+                        h__
+            in
+            if h_ * 6 < 1 then
+                m1 + (m2 - m1) * h_ * 6
+
+            else if h_ * 2 < 1 then
+                m2
+
+            else if h_ * 3 < 2 then
+                m1 + (m2 - m1) * (2 / 3 - h_) * 6
+
+            else
+                m1
     in
-    rgba (r + m) (g + m) (b + m) alpha
-
-
-{-| Taken from <http://www.cplusplus.com/reference/cmath/fmod/>.
--}
-floatModBy : Int -> Float -> Float
-floatModBy denom n =
-    let
-        fdenom =
-            toFloat denom
-
-        quot =
-            toFloat <| floor (n / fdenom)
-    in
-    n - quot * fdenom
+    RgbaSpace r g b alpha
 
 
 {-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
