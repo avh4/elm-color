@@ -129,6 +129,25 @@ all =
                             , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower b) |> Result.map (\x -> toFloat x / 255))
                             , .alpha >> Expect.equal 1.0
                             ]
+            , fuzz (tuple2 bool (tuple3 hex hex hex))
+                "3-digit string"
+              <|
+                \( withHash, ( r, g, b ) ) ->
+                    String.fromList [ r, g, b ]
+                        |> (if withHash then
+                                \x -> "#" ++ x
+
+                            else
+                                identity
+                           )
+                        |> Color.fromHex
+                        |> Color.toRgba
+                        |> Expect.all
+                            [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ r, r ]) |> Result.map (\x -> toFloat x / 255))
+                            , .green >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ g, g ]) |> Result.map (\x -> toFloat x / 255))
+                            , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ b, b ]) |> Result.map (\x -> toFloat x / 255))
+                            , .alpha >> Expect.equal 1.0
+                            ]
             ]
         , fuzz (tuple2 (tuple3 int255 int255 int255) unit)
             "can convert to hex strings"

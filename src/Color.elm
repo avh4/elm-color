@@ -123,6 +123,12 @@ fromHex : String -> Color
 fromHex hexString =
     Maybe.withDefault (RgbaSpace 0 0 0 0) <|
         case String.toList hexString of
+            [ '#', r, g, b ] ->
+                fromHex6 ( r, r ) ( g, g ) ( b, b )
+
+            [ r, g, b ] ->
+                fromHex6 ( r, r ) ( g, g ) ( b, b )
+
             [ '#', r1, r2, g1, g2, b1, b2 ] ->
                 fromHex6 ( r1, r2 ) ( g1, g2 ) ( b1, b2 )
 
