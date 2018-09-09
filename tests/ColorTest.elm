@@ -110,6 +110,34 @@ all =
                         , .blue >> Expect.within (Absolute 0.000001) (toFloat b / 255)
                         , .alpha >> Expect.equal 1.0
                         ]
+        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+            "can represent HSLA colors (fromHsla)"
+          <|
+            \( ( h, s, l ), a ) ->
+                { hue = h, saturation = s, lightness = l, alpha = a }
+                    |> Color.fromHsla
+                    |> Color.toHsla
+                    |> Expect.all
+                        [ \result ->
+                            if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
+                                -- hue does not apply
+                                Expect.pass
+
+                            else if h >= 1 then
+                                result.hue |> Expect.within (Absolute 0.000001) (h - 1)
+
+                            else
+                                result.hue |> Expect.within (Absolute 0.000001) h
+                        , \result ->
+                            if result.lightness == 1 || result.lightness == 0 then
+                                -- saturation does not apply
+                                Expect.pass
+
+                            else
+                                result.saturation |> Expect.within (Absolute 0.000001) s
+                        , .lightness >> Expect.within (Absolute 0.000001) l
+                        , .alpha >> Expect.within (Absolute 0.000001) a
+                        ]
         , describe "can convert from hex strings" <|
             let
                 hashPrefix bool string =

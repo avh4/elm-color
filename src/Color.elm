@@ -5,6 +5,7 @@ module Color exposing
     , fromHsla, hsla, hsl
     , fromHex
     , toRgba
+    , toHsla
     , toHex
     )
 
@@ -34,6 +35,7 @@ If you happen to pass channel values that are out of range, then they will be cl
 # Extracing values back out of colors
 
 @docs toRgba
+@docs toHsla
 @docs toHex
 
 -}
@@ -188,6 +190,62 @@ See also: [`hsla`](#hsla)
 hsl : Float -> Float -> Float -> Color
 hsl h s l =
     hsla h s l 1.0
+
+
+{-| Extract the [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
+components out of a `Color` value.
+The component values will be between 0.0 and 1.0 (inclusive).
+-}
+toHsla : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
+toHsla (RgbaSpace r g b a) =
+    let
+        minColor =
+            min r (min g b)
+
+        maxColor =
+            max r (max g b)
+
+        h1 =
+            if maxColor == r then
+                (g - b) / (maxColor - minColor)
+
+            else if maxColor == g then
+                2 + (b - r) / (maxColor - minColor)
+
+            else
+                4 + (r - g) / (maxColor - minColor)
+
+        h2 =
+            h1 * (1 / 6)
+
+        h3 =
+            if isNaN h2 then
+                0
+
+            else if h2 < 0 then
+                h2 + 1
+
+            else
+                h2
+
+        l =
+            (minColor + maxColor) / 2
+
+        s =
+            if minColor == maxColor then
+                0
+
+            else if l < 0.5 then
+                (maxColor - minColor) / (maxColor + minColor)
+
+            else
+                (maxColor - minColor) / (2 - maxColor - minColor)
+    in
+    { hue = h3
+    , saturation = s
+    , lightness = l
+    , alpha = a
+    }
 
 
 {-| Extract the RGBA (red, green, blue, alpha) components out of a `Color` value.
