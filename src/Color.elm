@@ -129,6 +129,12 @@ fromHex hexString =
             [ r, g, b ] ->
                 fromHex8 ( r, r ) ( g, g ) ( b, b ) ( 'f', 'f' )
 
+            [ '#', r, g, b, a ] ->
+                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( a, a )
+
+            [ r, g, b, a ] ->
+                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( a, a )
+
             [ '#', r1, r2, g1, g2, b1, b2 ] ->
                 fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( 'f', 'f' )
 

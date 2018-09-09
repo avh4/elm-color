@@ -160,6 +160,20 @@ all =
                             , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower b) |> Result.map (\x -> toFloat x / 255))
                             , .alpha >> Ok >> Expect.equal (Hex.fromString (String.toLower a) |> Result.map (\x -> toFloat x / 255))
                             ]
+            , fuzz (tuple3 bool (tuple3 hex hex hex) hex)
+                "4-digit string"
+              <|
+                \( withHash, ( r, g, b ), a ) ->
+                    String.fromList [ r, g, b, a ]
+                        |> hashPrefix withHash
+                        |> Color.fromHex
+                        |> Color.toRgba
+                        |> Expect.all
+                            [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ r, r ]) |> Result.map (\x -> toFloat x / 255))
+                            , .green >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ g, g ]) |> Result.map (\x -> toFloat x / 255))
+                            , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ b, b ]) |> Result.map (\x -> toFloat x / 255))
+                            , .alpha >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ a, a ]) |> Result.map (\x -> toFloat x / 255))
+                            ]
             ]
         , fuzz (tuple2 (tuple3 int255 int255 int255) unit)
             "can convert to hex strings"
