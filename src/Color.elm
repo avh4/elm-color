@@ -124,34 +124,41 @@ fromHex hexString =
     Maybe.withDefault (RgbaSpace 0 0 0 0) <|
         case String.toList hexString of
             [ '#', r, g, b ] ->
-                fromHex6 ( r, r ) ( g, g ) ( b, b )
+                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( 'f', 'f' )
 
             [ r, g, b ] ->
-                fromHex6 ( r, r ) ( g, g ) ( b, b )
+                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( 'f', 'f' )
 
             [ '#', r1, r2, g1, g2, b1, b2 ] ->
-                fromHex6 ( r1, r2 ) ( g1, g2 ) ( b1, b2 )
+                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( 'f', 'f' )
 
             [ r1, r2, g1, g2, b1, b2 ] ->
-                fromHex6 ( r1, r2 ) ( g1, g2 ) ( b1, b2 )
+                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( 'f', 'f' )
+
+            [ '#', r1, r2, g1, g2, b1, b2, a1, a2 ] ->
+                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 )
+
+            [ r1, r2, g1, g2, b1, b2, a1, a2 ] ->
+                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 )
 
             _ ->
                 Nothing
 
 
-fromHex6 : ( Char, Char ) -> ( Char, Char ) -> ( Char, Char ) -> Maybe Color
-fromHex6 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) =
-    Maybe.map3
-        (\r g b ->
+fromHex8 : ( Char, Char ) -> ( Char, Char ) -> ( Char, Char ) -> ( Char, Char ) -> Maybe Color
+fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 ) =
+    Maybe.map4
+        (\r g b a ->
             RgbaSpace
                 (toFloat r / 255)
                 (toFloat g / 255)
                 (toFloat b / 255)
-                1.0
+                (toFloat a / 255)
         )
         (hex2ToInt r1 r2)
         (hex2ToInt g1 g2)
         (hex2ToInt b1 b2)
+        (hex2ToInt a1 a2)
 
 
 hex2ToInt : Char -> Char -> Maybe Int

@@ -146,6 +146,20 @@ all =
                             , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower <| String.fromList [ b, b ]) |> Result.map (\x -> toFloat x / 255))
                             , .alpha >> Expect.equal 1.0
                             ]
+            , fuzz (tuple3 bool (tuple3 hex2 hex2 hex2) hex2)
+                "8-digit string"
+              <|
+                \( withHash, ( r, g, b ), a ) ->
+                    String.concat [ r, g, b, a ]
+                        |> hashPrefix withHash
+                        |> Color.fromHex
+                        |> Color.toRgba
+                        |> Expect.all
+                            [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower r) |> Result.map (\x -> toFloat x / 255))
+                            , .green >> Ok >> Expect.equal (Hex.fromString (String.toLower g) |> Result.map (\x -> toFloat x / 255))
+                            , .blue >> Ok >> Expect.equal (Hex.fromString (String.toLower b) |> Result.map (\x -> toFloat x / 255))
+                            , .alpha >> Ok >> Expect.equal (Hex.fromString (String.toLower a) |> Result.map (\x -> toFloat x / 255))
+                            ]
             ]
         , fuzz (tuple2 (tuple3 int255 int255 int255) unit)
             "can convert to hex strings"
