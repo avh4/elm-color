@@ -5,6 +5,11 @@ module Color exposing
     , fromHex
     , toRgba
     , toHex
+    , red, orange, yellow, green, blue, purple, brown
+    , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
+    , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
+    , white, lightGrey, grey, darkGrey, lightCharcoal, charcoal, darkCharcoal, black
+    , lightGray, gray, darkGray
     )
 
 {-| Module for working with colors. Allows creating colors via either
@@ -34,6 +39,41 @@ If you happen to pass channel values that are out of range, then they will be cl
 @docs toRgba
 @docs toHex
 
+
+# Built-in Colors
+
+These colors come from the [Tango palette](http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines)
+which provides aesthetically reasonable defaults for colors.
+Each color also comes with a light and dark version.
+
+
+## Standard
+
+@docs red, orange, yellow, green, blue, purple, brown
+
+
+## Light
+
+@docs lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
+
+
+## Dark
+
+@docs darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
+
+
+## Eight Shades of Grey
+
+These colors are a compatible series of shades of grey, fitting nicely
+with the Tango palette.
+
+@docs white, lightGrey, grey, darkGrey, lightCharcoal, charcoal, darkCharcoal, black
+
+These are identical to the _grey_ versions. It seems the spelling is regional, but
+that has never helped me remember which one I should be writing.
+
+@docs lightGray, gray, darkGray
+
 -}
 
 import Bitwise exposing (shiftLeftBy)
@@ -54,8 +94,8 @@ See also: [`rgba`](#rgba)
 
 -}
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
-fromRgba { red, green, blue, alpha } =
-    RgbaSpace red green blue alpha
+fromRgba components =
+    RgbaSpace components.red components.green components.blue components.alpha
 
 
 {-| Creates a `Color` from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
@@ -232,17 +272,17 @@ hexToInt char =
 toHex : Color -> { hex : String, alpha : Float }
 toHex c =
     let
-        { red, green, blue, alpha } =
+        components =
             toRgba c
     in
     { hex =
-        [ red, green, blue ]
+        [ components.red, components.green, components.blue ]
             |> List.map ((*) 255)
             |> List.map round
             |> List.map int255ToHex
             |> String.concat
             |> (++) "#"
-    , alpha = alpha
+    , alpha = components.alpha
     }
 
 
@@ -306,3 +346,201 @@ unsafeIntToChar i =
 
             _ ->
                 '0'
+
+
+
+--
+-- Built-in colors
+--
+
+
+{-| -}
+lightRed : Color
+lightRed =
+    RgbaSpace (239 / 255) (41 / 255) (41 / 255) 1.0
+
+
+{-| -}
+red : Color
+red =
+    RgbaSpace (204 / 255) (0 / 255) (0 / 255) 1.0
+
+
+{-| -}
+darkRed : Color
+darkRed =
+    RgbaSpace (164 / 255) (0 / 255) (0 / 255) 1.0
+
+
+{-| -}
+lightOrange : Color
+lightOrange =
+    RgbaSpace (252 / 255) (175 / 255) (62 / 255) 1.0
+
+
+{-| -}
+orange : Color
+orange =
+    RgbaSpace (245 / 255) (121 / 255) (0 / 255) 1.0
+
+
+{-| -}
+darkOrange : Color
+darkOrange =
+    RgbaSpace (206 / 255) (92 / 255) (0 / 255) 1.0
+
+
+{-| -}
+lightYellow : Color
+lightYellow =
+    RgbaSpace (255 / 255) (233 / 255) (79 / 255) 1.0
+
+
+{-| -}
+yellow : Color
+yellow =
+    RgbaSpace (237 / 255) (212 / 255) (0 / 255) 1.0
+
+
+{-| -}
+darkYellow : Color
+darkYellow =
+    RgbaSpace (196 / 255) (160 / 255) (0 / 255) 1.0
+
+
+{-| -}
+lightGreen : Color
+lightGreen =
+    RgbaSpace (138 / 255) (226 / 255) (52 / 255) 1.0
+
+
+{-| -}
+green : Color
+green =
+    RgbaSpace (115 / 255) (210 / 255) (22 / 255) 1.0
+
+
+{-| -}
+darkGreen : Color
+darkGreen =
+    RgbaSpace (78 / 255) (154 / 255) (6 / 255) 1.0
+
+
+{-| -}
+lightBlue : Color
+lightBlue =
+    RgbaSpace (114 / 255) (159 / 255) (207 / 255) 1.0
+
+
+{-| -}
+blue : Color
+blue =
+    RgbaSpace (52 / 255) (101 / 255) (164 / 255) 1.0
+
+
+{-| -}
+darkBlue : Color
+darkBlue =
+    RgbaSpace (32 / 255) (74 / 255) (135 / 255) 1.0
+
+
+{-| -}
+lightPurple : Color
+lightPurple =
+    RgbaSpace (173 / 255) (127 / 255) (168 / 255) 1.0
+
+
+{-| -}
+purple : Color
+purple =
+    RgbaSpace (117 / 255) (80 / 255) (123 / 255) 1.0
+
+
+{-| -}
+darkPurple : Color
+darkPurple =
+    RgbaSpace (92 / 255) (53 / 255) (102 / 255) 1.0
+
+
+{-| -}
+lightBrown : Color
+lightBrown =
+    RgbaSpace (233 / 255) (185 / 255) (110 / 255) 1.0
+
+
+{-| -}
+brown : Color
+brown =
+    RgbaSpace (193 / 255) (125 / 255) (17 / 255) 1.0
+
+
+{-| -}
+darkBrown : Color
+darkBrown =
+    RgbaSpace (143 / 255) (89 / 255) (2 / 255) 1.0
+
+
+{-| -}
+black : Color
+black =
+    RgbaSpace (0 / 255) (0 / 255) (0 / 255) 1.0
+
+
+{-| -}
+white : Color
+white =
+    RgbaSpace (255 / 255) (255 / 255) (255 / 255) 1.0
+
+
+{-| -}
+lightGrey : Color
+lightGrey =
+    RgbaSpace (238 / 255) (238 / 255) (236 / 255) 1.0
+
+
+{-| -}
+grey : Color
+grey =
+    RgbaSpace (211 / 255) (215 / 255) (207 / 255) 1.0
+
+
+{-| -}
+darkGrey : Color
+darkGrey =
+    RgbaSpace (186 / 255) (189 / 255) (182 / 255) 1.0
+
+
+{-| -}
+lightGray : Color
+lightGray =
+    RgbaSpace (238 / 255) (238 / 255) (236 / 255) 1.0
+
+
+{-| -}
+gray : Color
+gray =
+    RgbaSpace (211 / 255) (215 / 255) (207 / 255) 1.0
+
+
+{-| -}
+darkGray : Color
+darkGray =
+    RgbaSpace (186 / 255) (189 / 255) (182 / 255) 1.0
+
+
+{-| -}
+lightCharcoal : Color
+lightCharcoal =
+    RgbaSpace (136 / 255) (138 / 255) (133 / 255) 1.0
+
+
+{-| -}
+charcoal : Color
+charcoal =
+    RgbaSpace (85 / 255) (87 / 255) (83 / 255) 1.0
+
+
+{-| -}
+darkCharcoal : Color
+darkCharcoal =
+    RgbaSpace (46 / 255) (52 / 255) (54 / 255) 1.0
