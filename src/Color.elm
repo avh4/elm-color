@@ -200,7 +200,7 @@ hexToInt char =
             Nothing
 
 
-{-| This function will convert a color to hexadecimal string
+{-| This function will convert a color to hexadecimal string in the format `#rrggbb`.
 -}
 toHex : Color -> String
 toHex c =
@@ -213,6 +213,7 @@ toHex c =
         |> List.map round
         |> List.map int255ToHex
         |> String.concat
+        |> (++) "#"
 
 
 int255ToHex : Int -> String
