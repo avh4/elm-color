@@ -202,18 +202,21 @@ hexToInt char =
 
 {-| This function will convert a color to hexadecimal string in the format `#rrggbb`.
 -}
-toHex : Color -> String
+toHex : Color -> { hex : String, alpha : Float }
 toHex c =
     let
         { red, green, blue, alpha } =
             toRgba c
     in
-    [ red, green, blue ]
-        |> List.map ((*) 255)
-        |> List.map round
-        |> List.map int255ToHex
-        |> String.concat
-        |> (++) "#"
+    { hex =
+        [ red, green, blue ]
+            |> List.map ((*) 255)
+            |> List.map round
+            |> List.map int255ToHex
+            |> String.concat
+            |> (++) "#"
+    , alpha = alpha
+    }
 
 
 int255ToHex : Int -> String

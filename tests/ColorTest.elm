@@ -123,18 +123,22 @@ all =
                             , .alpha >> Expect.equal 1.0
                             ]
             ]
-        , fuzz (tuple3 int255 int255 int255)
+        , fuzz (tuple2 (tuple3 int255 int255 int255) unit)
             "can convert to hex strings"
           <|
-            \( r, g, b ) ->
-                Color.rgb255 r g b
+            \( ( r, g, b ), a ) ->
+                Color.rgba (toFloat r / 255) (toFloat g / 255) (toFloat b / 255) a
                     |> Color.toHex
-                    |> Expect.equal
-                        (String.concat
-                            [ "#"
-                            , String.pad 2 '0' (Hex.toString r)
-                            , String.pad 2 '0' (Hex.toString g)
-                            , String.pad 2 '0' (Hex.toString b)
-                            ]
-                        )
+                    |> Expect.all
+                        [ .hex
+                            >> Expect.equal
+                                (String.concat
+                                    [ "#"
+                                    , String.pad 2 '0' (Hex.toString r)
+                                    , String.pad 2 '0' (Hex.toString g)
+                                    , String.pad 2 '0' (Hex.toString b)
+                                    ]
+                                )
+                        , .alpha >> Expect.within (Absolute 0.000001) a
+                        ]
         ]
