@@ -114,8 +114,34 @@ all =
             "can represent HSLA colors (fromHsla)"
           <|
             \( ( h, s, l ), a ) ->
-                { hue = h, saturation = s, lightness = l, alpha = a }
-                    |> Color.fromHsla
+                Color.fromHsla { hue = h, saturation = s, lightness = l, alpha = a }
+                    |> Color.toHsla
+                    |> Expect.all
+                        [ \result ->
+                            if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
+                                -- hue does not apply
+                                Expect.pass
+
+                            else if h >= 1 then
+                                result.hue |> Expect.within (Absolute 0.000001) (h - 1)
+
+                            else
+                                result.hue |> Expect.within (Absolute 0.000001) h
+                        , \result ->
+                            if result.lightness == 1 || result.lightness == 0 then
+                                -- saturation does not apply
+                                Expect.pass
+
+                            else
+                                result.saturation |> Expect.within (Absolute 0.000001) s
+                        , .lightness >> Expect.within (Absolute 0.000001) l
+                        , .alpha >> Expect.within (Absolute 0.000001) a
+                        ]
+        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+            "can represent HSLA colors (hsla)"
+          <|
+            \( ( h, s, l ), a ) ->
+                Color.hsla h s l a
                     |> Color.toHsla
                     |> Expect.all
                         [ \result ->
