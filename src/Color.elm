@@ -45,7 +45,7 @@ See also: [`fromRgba`](#fromRgba)
 -}
 rgba : Float -> Float -> Float -> Float -> Color
 rgba r g b a =
-    fromRgba { red = r, green = g, blue = b, alpha = a }
+    RgbaSpace r g b a
 
 
 {-| Creates a color from RGB (red, green, blue) values between 0.0 and 1.0 (inclusive).
@@ -55,7 +55,7 @@ See also: [`rgba`](#rgba)
 -}
 rgb : Float -> Float -> Float -> Color
 rgb r g b =
-    rgba r g b 1.0
+    RgbaSpace r g b 1.0
 
 
 {-| Creates a color from a record of RGBA values (red, green, blue, alpha) between 0.0 and 1.0 (inclusive).
@@ -68,11 +68,7 @@ See also: [`rgba`](#rgba)
 -}
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
 fromRgba { red, green, blue, alpha } =
-    RgbaSpace
-        (clamp 0 1 red)
-        (clamp 0 1 green)
-        (clamp 0 1 blue)
-        (clamp 0 1 alpha)
+    RgbaSpace red green blue alpha
 
 
 {-| Extract the RGBA (red, green, blue, alpha) components from a `Color`.
