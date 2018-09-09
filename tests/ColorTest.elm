@@ -2,7 +2,7 @@ module ColorTest exposing (all)
 
 import Color exposing (Color)
 import Expect exposing (FloatingPointTolerance(..))
-import Fuzz exposing (Fuzzer, floatRange, intRange)
+import Fuzz exposing (Fuzzer, bool, floatRange, intRange)
 import Hex
 import Test exposing (..)
 
@@ -110,11 +110,18 @@ all =
                         , .alpha >> Expect.equal 1.0
                         ]
         , describe "can convert from hex strings"
-            [ fuzz (tuple3 hex2 hex2 hex2)
-                "6-digit string without #"
+            [ fuzz (tuple2 bool (tuple3 hex2 hex2 hex2))
+                "6-digit string"
               <|
-                \( r, g, b ) ->
-                    Color.fromHex (String.concat [ r, g, b ])
+                \( withHash, ( r, g, b ) ) ->
+                    String.concat [ r, g, b ]
+                        |> (if withHash then
+                                \x -> "#" ++ x
+
+                            else
+                                identity
+                           )
+                        |> Color.fromHex
                         |> Color.toRgba
                         |> Expect.all
                             [ .red >> Ok >> Expect.equal (Hex.fromString (String.toLower r) |> Result.map (\x -> toFloat x / 255))
