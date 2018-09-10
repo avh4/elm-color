@@ -283,12 +283,12 @@ all =
                 testHslToRgb i info =
                     test (String.fromInt i ++ ": " ++ Debug.toString info) <|
                         \() ->
-                            Color.hsl (toFloat info.h / 360) (toFloat info.s / 100) (toFloat info.l / 100)
+                            Color.hsl info.h info.s info.l
                                 |> Color.toRgba
                                 |> Expect.all
-                                    [ .red >> Expect.within (Absolute (2.800001 / 255)) (toFloat info.r / 255)
-                                    , .green >> Expect.within (Absolute (2.800001 / 255)) (toFloat info.g / 255)
-                                    , .blue >> Expect.within (Absolute (2.800001 / 255)) (toFloat info.b / 255)
+                                    [ .red >> Expect.within (Absolute 0.000001) info.r
+                                    , .green >> Expect.within (Absolute 0.000001) info.g
+                                    , .blue >> Expect.within (Absolute 0.000001) info.b
                                     , .alpha >> Expect.equal 1.0
                                     ]
             in
