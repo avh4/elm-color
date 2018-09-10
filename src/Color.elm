@@ -1,15 +1,22 @@
 module Color exposing
     ( Color
-    , fromRgba
-    , rgba, rgb, rgb255
+    , fromRgba, rgba, rgb
+    , rgb255
+    , fromHsla, hsla, hsl
     , fromHex
     , toRgba
+    , toHsla
     , toHex
+    , red, orange, yellow, green, blue, purple, brown
+    , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
+    , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
+    , white, lightGrey, grey, darkGrey, lightCharcoal, charcoal, darkCharcoal, black
+    , lightGray, gray, darkGray
     )
 
 {-| Module for working with colors. Allows creating colors via either
 [sRGB](https://en.wikipedia.org/wiki/RGB_color_model) values
-[HSL](http://en.wikipedia.org/wiki/HSL_and_HSV) values, or
+[HSL](https://en.wikipedia.org/wiki/HSL_and_HSV) values, or
 [Hex strings](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet).
 
 
@@ -24,15 +31,52 @@ All color construction functions guarantee to only construct valid color values 
 If you happen to pass channel values that are out of range, then they will be clamped between
 0.0 and 1.0, or 0 and 255 respectively.
 
-@docs fromRgba
-@docs rgba, rgb, rgb255
+@docs fromRgba, rgba, rgb
+@docs rgb255
+@docs fromHsla, hsla, hsl
 @docs fromHex
 
 
 # Extracing values back out of colors
 
 @docs toRgba
+@docs toHsla
 @docs toHex
+
+
+# Built-in Colors
+
+These colors come from the [Tango palette](http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines)
+which provides aesthetically reasonable defaults for colors.
+Each color also comes with a light and dark version.
+
+
+## Standard
+
+@docs red, orange, yellow, green, blue, purple, brown
+
+
+## Light
+
+@docs lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
+
+
+## Dark
+
+@docs darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
+
+
+## Eight Shades of Grey
+
+These colors are a compatible series of shades of grey, fitting nicely
+with the Tango palette.
+
+@docs white, lightGrey, grey, darkGrey, lightCharcoal, charcoal, darkCharcoal, black
+
+These are identical to the _grey_ versions. It seems the spelling is regional, but
+that has never helped me remember which one I should be writing.
+
+@docs lightGray, gray, darkGray
 
 -}
 
@@ -50,12 +94,14 @@ type Color
 The RGB values are interpreted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
 which is the standard for the Internet (HTML, CSS, and SVG), as well as digital images and printing.
 
+This is a strict function that will force you to name all channel parameters, to avoid mixing them up.
+
 See also: [`rgba`](#rgba)
 
 -}
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
-fromRgba { red, green, blue, alpha } =
-    RgbaSpace red green blue alpha
+fromRgba components =
+    RgbaSpace components.red components.green components.blue components.alpha
 
 
 {-| Creates a `Color` from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
@@ -89,17 +135,157 @@ This is a convenience function if you find passing RGB channels as integers scal
 Note that this is less fine-grained than passing the channels as `Float` between 0.0 and 1.0, since
 there are only 2^8=256 possible values for each channel.
 
-See also: [`rgba`](#rgba)
-
 -}
 rgb255 : Int -> Int -> Int -> Color
 rgb255 r g b =
-    rgb (scaleChannel r) (scaleChannel g) (scaleChannel b)
+    RgbaSpace (scaleFrom255 r) (scaleFrom255 g) (scaleFrom255 b) 1.0
 
 
-scaleChannel : Int -> Float
-scaleChannel c =
+scaleFrom255 : Int -> Float
+scaleFrom255 c =
     toFloat c / 255
+
+
+{-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
+values between 0.0 and 1.0 (inclusive).
+
+This is a strict function that will force you to name all channel parameters, to avoid mixing them up.
+
+See also: [`hsla`](#hsla)
+
+-}
+fromHsla : { hue : Float, saturation : Float, lightness : Float, alpha : Float } -> Color
+fromHsla { hue, saturation, lightness, alpha } =
+    hsla hue saturation lightness alpha
+
+
+{-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
+values between 0.0 and 1.0 (inclusive).
+
+This is a convenience function to construct colors from HSLA without needing to construct a record first.
+
+See also: [`fromHsla`](#fromHsla)
+
+-}
+hsla : Float -> Float -> Float -> Float -> Color
+hsla hue sat light alpha =
+    let
+        ( h, s, l ) =
+            ( hue, sat, light )
+
+        m2 =
+            if l <= 0.5 then
+                l * (s + 1)
+
+            else
+                l + s - l * s
+
+        m1 =
+            l * 2 - m2
+
+        r =
+            hueToRgb (h + 1 / 3)
+
+        g =
+            hueToRgb h
+
+        b =
+            hueToRgb (h - 1 / 3)
+
+        hueToRgb h__ =
+            let
+                h_ =
+                    if h__ < 0 then
+                        h__ + 1
+
+                    else if h__ > 1 then
+                        h__ - 1
+
+                    else
+                        h__
+            in
+            if h_ * 6 < 1 then
+                m1 + (m2 - m1) * h_ * 6
+
+            else if h_ * 2 < 1 then
+                m2
+
+            else if h_ * 3 < 2 then
+                m1 + (m2 - m1) * (2 / 3 - h_) * 6
+
+            else
+                m1
+    in
+    RgbaSpace r g b alpha
+
+
+{-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
+values between 0.0 and 1.0 (inclusive).
+
+This is a convenience function to construct colors from HSL without needing to construct a record first.
+
+See also: [`hsla`](#hsla)
+
+-}
+hsl : Float -> Float -> Float -> Color
+hsl h s l =
+    hsla h s l 1.0
+
+
+{-| Extract the [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
+components out of a `Color` value.
+The component values will be between 0.0 and 1.0 (inclusive).
+-}
+toHsla : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
+toHsla (RgbaSpace r g b a) =
+    let
+        minColor =
+            min r (min g b)
+
+        maxColor =
+            max r (max g b)
+
+        h1 =
+            if maxColor == r then
+                (g - b) / (maxColor - minColor)
+
+            else if maxColor == g then
+                2 + (b - r) / (maxColor - minColor)
+
+            else
+                4 + (r - g) / (maxColor - minColor)
+
+        h2 =
+            h1 * (1 / 6)
+
+        h3 =
+            if isNaN h2 then
+                0
+
+            else if h2 < 0 then
+                h2 + 1
+
+            else
+                h2
+
+        l =
+            (minColor + maxColor) / 2
+
+        s =
+            if minColor == maxColor then
+                0
+
+            else if l < 0.5 then
+                (maxColor - minColor) / (maxColor + minColor)
+
+            else
+                (maxColor - minColor) / (2 - maxColor - minColor)
+    in
+    { hue = h3
+    , saturation = s
+    , lightness = l
+    , alpha = a
+    }
 
 
 {-| Extract the RGBA (red, green, blue, alpha) components out of a `Color` value.
@@ -232,17 +418,17 @@ hexToInt char =
 toHex : Color -> { hex : String, alpha : Float }
 toHex c =
     let
-        { red, green, blue, alpha } =
+        components =
             toRgba c
     in
     { hex =
-        [ red, green, blue ]
+        [ components.red, components.green, components.blue ]
             |> List.map ((*) 255)
             |> List.map round
             |> List.map int255ToHex
             |> String.concat
             |> (++) "#"
-    , alpha = alpha
+    , alpha = components.alpha
     }
 
 
@@ -306,3 +492,201 @@ unsafeIntToChar i =
 
             _ ->
                 '0'
+
+
+
+--
+-- Built-in colors
+--
+
+
+{-| -}
+lightRed : Color
+lightRed =
+    RgbaSpace (239 / 255) (41 / 255) (41 / 255) 1.0
+
+
+{-| -}
+red : Color
+red =
+    RgbaSpace (204 / 255) (0 / 255) (0 / 255) 1.0
+
+
+{-| -}
+darkRed : Color
+darkRed =
+    RgbaSpace (164 / 255) (0 / 255) (0 / 255) 1.0
+
+
+{-| -}
+lightOrange : Color
+lightOrange =
+    RgbaSpace (252 / 255) (175 / 255) (62 / 255) 1.0
+
+
+{-| -}
+orange : Color
+orange =
+    RgbaSpace (245 / 255) (121 / 255) (0 / 255) 1.0
+
+
+{-| -}
+darkOrange : Color
+darkOrange =
+    RgbaSpace (206 / 255) (92 / 255) (0 / 255) 1.0
+
+
+{-| -}
+lightYellow : Color
+lightYellow =
+    RgbaSpace (255 / 255) (233 / 255) (79 / 255) 1.0
+
+
+{-| -}
+yellow : Color
+yellow =
+    RgbaSpace (237 / 255) (212 / 255) (0 / 255) 1.0
+
+
+{-| -}
+darkYellow : Color
+darkYellow =
+    RgbaSpace (196 / 255) (160 / 255) (0 / 255) 1.0
+
+
+{-| -}
+lightGreen : Color
+lightGreen =
+    RgbaSpace (138 / 255) (226 / 255) (52 / 255) 1.0
+
+
+{-| -}
+green : Color
+green =
+    RgbaSpace (115 / 255) (210 / 255) (22 / 255) 1.0
+
+
+{-| -}
+darkGreen : Color
+darkGreen =
+    RgbaSpace (78 / 255) (154 / 255) (6 / 255) 1.0
+
+
+{-| -}
+lightBlue : Color
+lightBlue =
+    RgbaSpace (114 / 255) (159 / 255) (207 / 255) 1.0
+
+
+{-| -}
+blue : Color
+blue =
+    RgbaSpace (52 / 255) (101 / 255) (164 / 255) 1.0
+
+
+{-| -}
+darkBlue : Color
+darkBlue =
+    RgbaSpace (32 / 255) (74 / 255) (135 / 255) 1.0
+
+
+{-| -}
+lightPurple : Color
+lightPurple =
+    RgbaSpace (173 / 255) (127 / 255) (168 / 255) 1.0
+
+
+{-| -}
+purple : Color
+purple =
+    RgbaSpace (117 / 255) (80 / 255) (123 / 255) 1.0
+
+
+{-| -}
+darkPurple : Color
+darkPurple =
+    RgbaSpace (92 / 255) (53 / 255) (102 / 255) 1.0
+
+
+{-| -}
+lightBrown : Color
+lightBrown =
+    RgbaSpace (233 / 255) (185 / 255) (110 / 255) 1.0
+
+
+{-| -}
+brown : Color
+brown =
+    RgbaSpace (193 / 255) (125 / 255) (17 / 255) 1.0
+
+
+{-| -}
+darkBrown : Color
+darkBrown =
+    RgbaSpace (143 / 255) (89 / 255) (2 / 255) 1.0
+
+
+{-| -}
+black : Color
+black =
+    RgbaSpace (0 / 255) (0 / 255) (0 / 255) 1.0
+
+
+{-| -}
+white : Color
+white =
+    RgbaSpace (255 / 255) (255 / 255) (255 / 255) 1.0
+
+
+{-| -}
+lightGrey : Color
+lightGrey =
+    RgbaSpace (238 / 255) (238 / 255) (236 / 255) 1.0
+
+
+{-| -}
+grey : Color
+grey =
+    RgbaSpace (211 / 255) (215 / 255) (207 / 255) 1.0
+
+
+{-| -}
+darkGrey : Color
+darkGrey =
+    RgbaSpace (186 / 255) (189 / 255) (182 / 255) 1.0
+
+
+{-| -}
+lightGray : Color
+lightGray =
+    RgbaSpace (238 / 255) (238 / 255) (236 / 255) 1.0
+
+
+{-| -}
+gray : Color
+gray =
+    RgbaSpace (211 / 255) (215 / 255) (207 / 255) 1.0
+
+
+{-| -}
+darkGray : Color
+darkGray =
+    RgbaSpace (186 / 255) (189 / 255) (182 / 255) 1.0
+
+
+{-| -}
+lightCharcoal : Color
+lightCharcoal =
+    RgbaSpace (136 / 255) (138 / 255) (133 / 255) 1.0
+
+
+{-| -}
+charcoal : Color
+charcoal =
+    RgbaSpace (85 / 255) (87 / 255) (83 / 255) 1.0
+
+
+{-| -}
+darkCharcoal : Color
+darkCharcoal =
+    RgbaSpace (46 / 255) (52 / 255) (54 / 255) 1.0

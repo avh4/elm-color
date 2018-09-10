@@ -1,6 +1,7 @@
 module ColorTest exposing (all)
 
 import Color exposing (Color)
+import CssHslReference
 import Expect exposing (FloatingPointTolerance(..))
 import Fuzz exposing (Fuzzer, bool, floatRange, intRange)
 import Hex
@@ -109,6 +110,87 @@ all =
                         , .blue >> Expect.within (Absolute 0.000001) (toFloat b / 255)
                         , .alpha >> Expect.equal 1.0
                         ]
+        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+            "can represent HSLA colors (fromHsla)"
+          <|
+            \( ( h, s, l ), a ) ->
+                Color.fromHsla { hue = h, saturation = s, lightness = l, alpha = a }
+                    |> Color.toHsla
+                    |> Expect.all
+                        [ \result ->
+                            if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
+                                -- hue does not apply
+                                Expect.pass
+
+                            else if h >= 1 then
+                                result.hue |> Expect.within (Absolute 0.000001) (h - 1)
+
+                            else
+                                result.hue |> Expect.within (Absolute 0.000001) h
+                        , \result ->
+                            if result.lightness == 1 || result.lightness == 0 then
+                                -- saturation does not apply
+                                Expect.pass
+
+                            else
+                                result.saturation |> Expect.within (Absolute 0.000001) s
+                        , .lightness >> Expect.within (Absolute 0.000001) l
+                        , .alpha >> Expect.within (Absolute 0.000001) a
+                        ]
+        , fuzz (tuple3 unit unit unit)
+            "can represent HSLA colors (hsl)"
+          <|
+            \( h, s, l ) ->
+                Color.hsl h s l
+                    |> Color.toHsla
+                    |> Expect.all
+                        [ \result ->
+                            if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
+                                -- hue does not apply
+                                Expect.pass
+
+                            else if h >= 1 then
+                                result.hue |> Expect.within (Absolute 0.000001) (h - 1)
+
+                            else
+                                result.hue |> Expect.within (Absolute 0.000001) h
+                        , \result ->
+                            if result.lightness == 1 || result.lightness == 0 then
+                                -- saturation does not apply
+                                Expect.pass
+
+                            else
+                                result.saturation |> Expect.within (Absolute 0.000001) s
+                        , .lightness >> Expect.within (Absolute 0.000001) l
+                        , .alpha >> Expect.equal 1.0
+                        ]
+        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+            "can represent HSLA colors (hsla)"
+          <|
+            \( ( h, s, l ), a ) ->
+                Color.hsla h s l a
+                    |> Color.toHsla
+                    |> Expect.all
+                        [ \result ->
+                            if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
+                                -- hue does not apply
+                                Expect.pass
+
+                            else if h >= 1 then
+                                result.hue |> Expect.within (Absolute 0.000001) (h - 1)
+
+                            else
+                                result.hue |> Expect.within (Absolute 0.000001) h
+                        , \result ->
+                            if result.lightness == 1 || result.lightness == 0 then
+                                -- saturation does not apply
+                                Expect.pass
+
+                            else
+                                result.saturation |> Expect.within (Absolute 0.000001) s
+                        , .lightness >> Expect.within (Absolute 0.000001) l
+                        , .alpha >> Expect.within (Absolute 0.000001) a
+                        ]
         , describe "can convert from hex strings" <|
             let
                 hashPrefix bool string =
@@ -196,4 +278,48 @@ all =
                                 )
                         , .alpha >> Expect.within (Absolute 0.000001) a
                         ]
+        , describe "color reference" <|
+            let
+                testHslToRgb i info =
+                    test (String.fromInt i ++ ": " ++ Debug.toString info) <|
+                        \() ->
+                            Color.hsl info.h info.s info.l
+                                |> Color.toRgba
+                                |> Expect.all
+                                    [ .red >> Expect.within (Absolute 0.000001) info.r
+                                    , .green >> Expect.within (Absolute 0.000001) info.g
+                                    , .blue >> Expect.within (Absolute 0.000001) info.b
+                                    , .alpha >> Expect.equal 1.0
+                                    ]
+
+                testRgbToHsl i info =
+                    test (String.fromInt i ++ ": " ++ Debug.toString info) <|
+                        \() ->
+                            Color.rgb info.r info.g info.b
+                                |> Color.toHsla
+                                |> Expect.all
+                                    [ if info.l == 1 || info.l == 0 || info.s == 0 then
+                                        -- hue does not apply
+                                        always Expect.pass
+
+                                      else if info.h >= 1 then
+                                        .hue >> Expect.within (Absolute 0.000001) (info.h - 1)
+
+                                      else
+                                        .hue >> Expect.within (Absolute 0.000001) info.h
+                                    , if info.l == 1 || info.l == 0 then
+                                        -- saturation does not apply
+                                        always Expect.pass
+
+                                      else
+                                        .saturation >> Expect.within (Absolute 0.000001) info.s
+                                    , .lightness >> Expect.within (Absolute 0.000001) info.l
+                                    , .alpha >> Expect.equal 1.0
+                                    ]
+            in
+            [ describe "HSL to RGB" <|
+                List.indexedMap testHslToRgb CssHslReference.all
+            , describe "RGB to HSL" <|
+                List.indexedMap testRgbToHsl CssHslReference.all
+            ]
         ]
