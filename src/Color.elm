@@ -1,12 +1,9 @@
 module Color exposing
     ( Color
-    , fromRgba, rgba, rgb
-    , rgb255
-    , fromHsla, hsla, hsl
+    , rgb255, rgb, rgba, hsl, hsla
+    , fromRgba, fromHsla
     , fromHex
-    , toRgba
-    , toHsla
-    , toHex
+    , toRgba, toHsla, toHex
     , red, orange, yellow, green, blue, purple, brown
     , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
     , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
@@ -27,21 +24,30 @@ module Color exposing
 
 # Creating colors
 
-All color construction functions guarantee to only construct valid color values for you.
-If you happen to pass channel values that are out of range, then they will be clamped between
-0.0 and 1.0, or 0 and 255 respectively.
 
-@docs fromRgba, rgba, rgb
-@docs rgb255
-@docs fromHsla, hsla, hsl
+## From numbers
+
+These are the most concise ways to create colors:
+
+@docs rgb255, rgb, rgba, hsl, hsla
+
+
+## From records
+
+These ways to make colors make the names of each component explicit,
+and are compatible with the corresponding `to...` function.
+
+@docs fromRgba, fromHsla
+
+
+## From strings
+
 @docs fromHex
 
 
-# Extracing values back out of colors
+# Extracing values from colors
 
-@docs toRgba
-@docs toHsla
-@docs toHex
+@docs toRgba, toHsla, toHex
 
 
 # Built-in Colors
@@ -233,7 +239,7 @@ hsl h s l =
 
 
 {-| Extract the [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
-components out of a `Color` value.
+components from a `Color` value.
 The component values will be between 0.0 and 1.0 (inclusive).
 -}
 toHsla : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
@@ -288,7 +294,7 @@ toHsla (RgbaSpace r g b a) =
     }
 
 
-{-| Extract the RGBA (red, green, blue, alpha) components out of a `Color` value.
+{-| Extract the RGBA (red, green, blue, alpha) components from a `Color` value.
 The component values will be between 0.0 and 1.0 (inclusive).
 
 The RGB values are interpreted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
