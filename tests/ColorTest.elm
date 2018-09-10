@@ -291,8 +291,35 @@ all =
                                     , .blue >> Expect.within (Absolute 0.000001) info.b
                                     , .alpha >> Expect.equal 1.0
                                     ]
+
+                testRgbToHsl i info =
+                    test (String.fromInt i ++ ": " ++ Debug.toString info) <|
+                        \() ->
+                            Color.rgb info.r info.g info.b
+                                |> Color.toHsla
+                                |> Expect.all
+                                    [ if info.l == 1 || info.l == 0 || info.s == 0 then
+                                        -- hue does not apply
+                                        always Expect.pass
+
+                                      else if info.h >= 1 then
+                                        .hue >> Expect.within (Absolute 0.000001) (info.h - 1)
+
+                                      else
+                                        .hue >> Expect.within (Absolute 0.000001) info.h
+                                    , if info.l == 1 || info.l == 0 then
+                                        -- saturation does not apply
+                                        always Expect.pass
+
+                                      else
+                                        .saturation >> Expect.within (Absolute 0.000001) info.s
+                                    , .lightness >> Expect.within (Absolute 0.000001) info.l
+                                    , .alpha >> Expect.equal 1.0
+                                    ]
             in
             [ describe "HSL to RGB" <|
                 List.indexedMap testHslToRgb CssHslReference.all
+            , describe "RGB to HSL" <|
+                List.indexedMap testRgbToHsl CssHslReference.all
             ]
         ]
