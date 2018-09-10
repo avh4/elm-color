@@ -8,6 +8,10 @@ import Hex
 import Test exposing (..)
 
 
+guaranteedTolerance =
+    Absolute 0.0000000001
+
+
 
 --
 -- Fuzzers
@@ -69,10 +73,10 @@ all =
                 Color.fromRgba { red = r, green = g, blue = b, alpha = a }
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within (Absolute 0.000001) r
-                        , .green >> Expect.within (Absolute 0.000001) g
-                        , .blue >> Expect.within (Absolute 0.000001) b
-                        , .alpha >> Expect.within (Absolute 0.000001) a
+                        [ .red >> Expect.within guaranteedTolerance r
+                        , .green >> Expect.within guaranteedTolerance g
+                        , .blue >> Expect.within guaranteedTolerance b
+                        , .alpha >> Expect.within guaranteedTolerance a
                         ]
         , fuzz (tuple2 (tuple3 unit unit unit) unit)
             "can represent RGBA colors (rgba)"
@@ -81,10 +85,10 @@ all =
                 Color.rgba r g b a
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within (Absolute 0.000001) r
-                        , .green >> Expect.within (Absolute 0.000001) g
-                        , .blue >> Expect.within (Absolute 0.000001) b
-                        , .alpha >> Expect.within (Absolute 0.000001) a
+                        [ .red >> Expect.within guaranteedTolerance r
+                        , .green >> Expect.within guaranteedTolerance g
+                        , .blue >> Expect.within guaranteedTolerance b
+                        , .alpha >> Expect.within guaranteedTolerance a
                         ]
         , fuzz (tuple3 unit unit unit)
             "can represent RGBA colors (rgb)"
@@ -93,9 +97,9 @@ all =
                 Color.rgb r g b
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within (Absolute 0.000001) r
-                        , .green >> Expect.within (Absolute 0.000001) g
-                        , .blue >> Expect.within (Absolute 0.000001) b
+                        [ .red >> Expect.within guaranteedTolerance r
+                        , .green >> Expect.within guaranteedTolerance g
+                        , .blue >> Expect.within guaranteedTolerance b
                         , .alpha >> Expect.equal 1.0
                         ]
         , fuzz (tuple3 int255 int255 int255)
@@ -105,9 +109,9 @@ all =
                 Color.rgb255 r g b
                     |> Color.toRgba
                     |> Expect.all
-                        [ .red >> Expect.within (Absolute 0.000001) (toFloat r / 255)
-                        , .green >> Expect.within (Absolute 0.000001) (toFloat g / 255)
-                        , .blue >> Expect.within (Absolute 0.000001) (toFloat b / 255)
+                        [ .red >> Expect.within guaranteedTolerance (toFloat r / 255)
+                        , .green >> Expect.within guaranteedTolerance (toFloat g / 255)
+                        , .blue >> Expect.within guaranteedTolerance (toFloat b / 255)
                         , .alpha >> Expect.equal 1.0
                         ]
         , fuzz (tuple2 (tuple3 unit unit unit) unit)
@@ -123,19 +127,19 @@ all =
                                 Expect.pass
 
                             else if h >= 1 then
-                                result.hue |> Expect.within (Absolute 0.000001) (h - 1)
+                                result.hue |> Expect.within guaranteedTolerance (h - 1)
 
                             else
-                                result.hue |> Expect.within (Absolute 0.000001) h
+                                result.hue |> Expect.within guaranteedTolerance h
                         , \result ->
                             if result.lightness == 1 || result.lightness == 0 then
                                 -- saturation does not apply
                                 Expect.pass
 
                             else
-                                result.saturation |> Expect.within (Absolute 0.000001) s
-                        , .lightness >> Expect.within (Absolute 0.000001) l
-                        , .alpha >> Expect.within (Absolute 0.000001) a
+                                result.saturation |> Expect.within guaranteedTolerance s
+                        , .lightness >> Expect.within guaranteedTolerance l
+                        , .alpha >> Expect.within guaranteedTolerance a
                         ]
         , fuzz (tuple3 unit unit unit)
             "can represent HSLA colors (hsl)"
@@ -150,18 +154,18 @@ all =
                                 Expect.pass
 
                             else if h >= 1 then
-                                result.hue |> Expect.within (Absolute 0.000001) (h - 1)
+                                result.hue |> Expect.within guaranteedTolerance (h - 1)
 
                             else
-                                result.hue |> Expect.within (Absolute 0.000001) h
+                                result.hue |> Expect.within guaranteedTolerance h
                         , \result ->
                             if result.lightness == 1 || result.lightness == 0 then
                                 -- saturation does not apply
                                 Expect.pass
 
                             else
-                                result.saturation |> Expect.within (Absolute 0.000001) s
-                        , .lightness >> Expect.within (Absolute 0.000001) l
+                                result.saturation |> Expect.within guaranteedTolerance s
+                        , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.equal 1.0
                         ]
         , fuzz (tuple2 (tuple3 unit unit unit) unit)
@@ -177,19 +181,19 @@ all =
                                 Expect.pass
 
                             else if h >= 1 then
-                                result.hue |> Expect.within (Absolute 0.000001) (h - 1)
+                                result.hue |> Expect.within guaranteedTolerance (h - 1)
 
                             else
-                                result.hue |> Expect.within (Absolute 0.000001) h
+                                result.hue |> Expect.within guaranteedTolerance h
                         , \result ->
                             if result.lightness == 1 || result.lightness == 0 then
                                 -- saturation does not apply
                                 Expect.pass
 
                             else
-                                result.saturation |> Expect.within (Absolute 0.000001) s
-                        , .lightness >> Expect.within (Absolute 0.000001) l
-                        , .alpha >> Expect.within (Absolute 0.000001) a
+                                result.saturation |> Expect.within guaranteedTolerance s
+                        , .lightness >> Expect.within guaranteedTolerance l
+                        , .alpha >> Expect.within guaranteedTolerance a
                         ]
         , describe "can convert from hex strings" <|
             let
@@ -276,7 +280,7 @@ all =
                                     , String.pad 2 '0' (Hex.toString b)
                                     ]
                                 )
-                        , .alpha >> Expect.within (Absolute 0.000001) a
+                        , .alpha >> Expect.within guaranteedTolerance a
                         ]
         , describe "color reference" <|
             let
@@ -286,9 +290,9 @@ all =
                             Color.hsl info.h info.s info.l
                                 |> Color.toRgba
                                 |> Expect.all
-                                    [ .red >> Expect.within (Absolute 0.000001) info.r
-                                    , .green >> Expect.within (Absolute 0.000001) info.g
-                                    , .blue >> Expect.within (Absolute 0.000001) info.b
+                                    [ .red >> Expect.within guaranteedTolerance info.r
+                                    , .green >> Expect.within guaranteedTolerance info.g
+                                    , .blue >> Expect.within guaranteedTolerance info.b
                                     , .alpha >> Expect.equal 1.0
                                     ]
 
@@ -303,17 +307,17 @@ all =
                                         always Expect.pass
 
                                       else if info.h >= 1 then
-                                        .hue >> Expect.within (Absolute 0.000001) (info.h - 1)
+                                        .hue >> Expect.within guaranteedTolerance (info.h - 1)
 
                                       else
-                                        .hue >> Expect.within (Absolute 0.000001) info.h
+                                        .hue >> Expect.within guaranteedTolerance info.h
                                     , if info.l == 1 || info.l == 0 then
                                         -- saturation does not apply
                                         always Expect.pass
 
                                       else
-                                        .saturation >> Expect.within (Absolute 0.000001) info.s
-                                    , .lightness >> Expect.within (Absolute 0.000001) info.l
+                                        .saturation >> Expect.within guaranteedTolerance info.s
+                                    , .lightness >> Expect.within guaranteedTolerance info.l
                                     , .alpha >> Expect.equal 1.0
                                     ]
             in
