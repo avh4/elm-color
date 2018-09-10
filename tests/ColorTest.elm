@@ -214,6 +214,7 @@ all =
                     String.concat [ r, g, b ]
                         |> hashPrefix withHash
                         |> Color.fromHex
+                        |> Maybe.withDefault (Color.rgb -1 -1 -1)
                         |> Color.toRgba
                         |> Expect.all
                             [ .red >> Ok >> Expect.equal (hex2ToUnit r)
@@ -228,6 +229,7 @@ all =
                     String.fromList [ r, g, b ]
                         |> hashPrefix withHash
                         |> Color.fromHex
+                        |> Maybe.withDefault (Color.rgb -1 -1 -1)
                         |> Color.toRgba
                         |> Expect.all
                             [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])
@@ -242,6 +244,7 @@ all =
                     String.concat [ r, g, b, a ]
                         |> hashPrefix withHash
                         |> Color.fromHex
+                        |> Maybe.withDefault (Color.rgb -1 -1 -1)
                         |> Color.toRgba
                         |> Expect.all
                             [ .red >> Ok >> Expect.equal (hex2ToUnit r)
@@ -256,6 +259,7 @@ all =
                     String.fromList [ r, g, b, a ]
                         |> hashPrefix withHash
                         |> Color.fromHex
+                        |> Maybe.withDefault (Color.rgb -1 -1 -1)
                         |> Color.toRgba
                         |> Expect.all
                             [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])

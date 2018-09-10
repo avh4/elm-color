@@ -306,41 +306,51 @@ toRgba (RgbaSpace r g b a) =
     { red = r, green = g, blue = b, alpha = a }
 
 
-{-| This function is meant for convenience of specifying colors,
-and so always returns a valid color.
-If the string given is not a valid 3-, 4-, 6-, or 8-digit hex string,
-then this function will return `rgba 0 0 0 1`
+{-| Returns a color represented by a valid 3- or 6-digit RGB hex string
+or a 4- or 8-digit RGBA hex string.
+String may (but are not required to) start with a `#` character.
+Hex digits in the string may be either uppercase or lowercase.
+
+If the input string is not a valid hex string, it will return `Nothing`.
+
+    fromHex "#Ac3" --> Just (Color.rgb255 0xAA 0xCC 0x33)
+
+    fromHex "ffe4e1" --> Just (Color.rgb255 0xFF 0xE4 0xE1)
+
+    fromHex "#00ff00FF" --> Just (Color.rgba 0.0 1.0 0.0 1.0)
+
+    fromHex "**purple**" --> Nothing
+
 -}
-fromHex : String -> Color
+fromHex : String -> Maybe Color
 fromHex hexString =
-    Maybe.withDefault (RgbaSpace 0 0 0 0) <|
-        case String.toList hexString of
-            [ '#', r, g, b ] ->
-                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( 'f', 'f' )
+    case String.toList hexString of
+        [ '#', r, g, b ] ->
+            fromHex8 ( r, r ) ( g, g ) ( b, b ) ( 'f', 'f' )
 
-            [ r, g, b ] ->
-                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( 'f', 'f' )
+        [ r, g, b ] ->
+            fromHex8 ( r, r ) ( g, g ) ( b, b ) ( 'f', 'f' )
 
-            [ '#', r, g, b, a ] ->
-                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( a, a )
+        [ '#', r, g, b, a ] ->
+            fromHex8 ( r, r ) ( g, g ) ( b, b ) ( a, a )
 
-            [ r, g, b, a ] ->
-                fromHex8 ( r, r ) ( g, g ) ( b, b ) ( a, a )
+        [ r, g, b, a ] ->
+            fromHex8 ( r, r ) ( g, g ) ( b, b ) ( a, a )
 
-            [ '#', r1, r2, g1, g2, b1, b2 ] ->
-                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( 'f', 'f' )
+        [ '#', r1, r2, g1, g2, b1, b2 ] ->
+            fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( 'f', 'f' )
 
-            [ r1, r2, g1, g2, b1, b2 ] ->
-                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( 'f', 'f' )
+        [ r1, r2, g1, g2, b1, b2 ] ->
+            fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( 'f', 'f' )
 
-            [ '#', r1, r2, g1, g2, b1, b2, a1, a2 ] ->
-                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 )
+        [ '#', r1, r2, g1, g2, b1, b2, a1, a2 ] ->
+            fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 )
 
-            [ r1, r2, g1, g2, b1, b2, a1, a2 ] ->
-                fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 )
+        [ r1, r2, g1, g2, b1, b2, a1, a2 ] ->
+            fromHex8 ( r1, r2 ) ( g1, g2 ) ( b1, b2 ) ( a1, a2 )
 
-            _ ->
-                Nothing
+        _ ->
+            Nothing
 
 
 fromHex8 : ( Char, Char ) -> ( Char, Char ) -> ( Char, Char ) -> ( Char, Char ) -> Maybe Color
