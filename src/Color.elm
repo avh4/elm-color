@@ -3,7 +3,7 @@ module Color exposing
     , rgb255, rgb, rgba, hsl, hsla
     , fromRgba, fromHsla
     , fromHex
-    , toRgba, toHsla, toHex
+    , toRgba, toHsla, toHex, toCssString
     , red, orange, yellow, green, blue, purple, brown
     , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
     , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
@@ -47,7 +47,7 @@ and are compatible with the corresponding `to...` function.
 
 # Extracing values from colors
 
-@docs toRgba, toHsla, toHex
+@docs toRgba, toHsla, toHex, toCssString
 
 
 # Built-in Colors
@@ -430,6 +430,10 @@ hexToInt char =
 
 
 {-| This function will convert a color to a 6-digit hexadecimal string in the format `#rrggbb`.
+
+NOTE: If you want to use the resulting string with CSS, you should instead use [`toCssString`](#toCssString),
+which will represent the color more accurately, and preserve the alpha component.
+
 -}
 toHex : Color -> { hex : String, alpha : Float }
 toHex c =
@@ -508,6 +512,41 @@ unsafeIntToChar i =
 
             _ ->
                 '0'
+
+
+{-| Converts a color to a string suitable for use in CSS.
+The string will conform to [CSS Color Module Level 3](https://www.w3.org/TR/css-color-3/),
+which is supported by all current web browsers, all versions of Firefox,
+all versions of Chrome, IE 9+, and all common mobile browsers
+([browser support details](https://caniuse.com/#feat=css3-colors)).
+
+    Html.Attributes.style "background-color" (Color.toCssString Color.lightPurple)
+
+Note: the current implementation produces a string in the form
+`rgba(rr.rr%,gg.gg%,bb.bb%,a.aaa)`, but this may change in the
+future, and you should not rely on this implementation detail.
+
+-}
+toCssString : Color -> String
+toCssString (RgbaSpace r g b a) =
+    let
+        pct x =
+            ((x * 10000) |> round |> toFloat) / 100
+
+        roundTo x =
+            ((x * 1000) |> round |> toFloat) / 1000
+    in
+    String.concat
+        [ "rgba("
+        , String.fromFloat (pct r)
+        , "%,"
+        , String.fromFloat (pct g)
+        , "%,"
+        , String.fromFloat (pct b)
+        , "%,"
+        , String.fromFloat (roundTo a)
+        , ")"
+        ]
 
 
 

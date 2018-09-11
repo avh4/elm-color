@@ -96,7 +96,7 @@ colorExample label color =
     Html.div
         [ Html.Attributes.style "display" "inline-block"
         , Html.Attributes.style "border-radius" "5px"
-        , Html.Attributes.style "background" (Color.toHex color).hex
+        , Html.Attributes.style "background" (Color.toCssString color)
         , Html.Attributes.style "text-shadow" "0 0 2px white"
         , Html.Attributes.style "text-align" "center"
         , Html.Attributes.style "width" "140px"

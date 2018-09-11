@@ -286,6 +286,25 @@ all =
                                 )
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
+        , fuzz (tuple2 (tuple3 (intRange 0 10000) (intRange 0 10000) (intRange 0 10000)) (intRange 0 1000))
+            "can convert to CSS rgba strings"
+          <|
+            \( ( r, g, b ), a ) ->
+                Color.rgba (toFloat r / 10000) (toFloat g / 10000) (toFloat b / 10000) (toFloat a / 1000)
+                    |> Color.toCssString
+                    |> Expect.equal
+                        (String.concat
+                            [ "rgba("
+                            , String.fromFloat (toFloat r / 100)
+                            , "%,"
+                            , String.fromFloat (toFloat g / 100)
+                            , "%,"
+                            , String.fromFloat (toFloat b / 100)
+                            , "%,"
+                            , String.fromFloat (toFloat a / 1000)
+                            , ")"
+                            ]
+                        )
         , describe "color reference" <|
             let
                 testHslToRgb i info =
