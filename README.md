@@ -40,6 +40,7 @@ view foreground =
         , style "color" (Color.toCssString foreground)
         , style "border-color" (Color.toCssString borderColor)
         ]
+        [ Html.text "(ᵔᴥᵔ)" ]
 ```
 
 
