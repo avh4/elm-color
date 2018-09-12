@@ -51,7 +51,7 @@ and are compatible with the corresponding `to...` function.
 @docs toCssString
 
 
-# Extracing values from colors
+# Extracting values from colors
 
 @docs toRgba, toHsla
 
