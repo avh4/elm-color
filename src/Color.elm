@@ -11,7 +11,7 @@ module Color exposing
     , lightGray, gray, darkGray
     )
 
-{-| The this package defines a standard `Color` type
+{-| This package defines a standard `Color` type
 with the hope that all Elm packages that produce colors and
 all Elm packages that consume colors will use this type
 to allow all such packages to easily interoperate
@@ -46,7 +46,7 @@ and are compatible with the corresponding `to...` function.
 @docs fromRgba, fromHsla
 
 
-# Using colors with HTML/CSS
+# Using colors with HTML/CSS/SVG
 
 @docs toCssString
 
