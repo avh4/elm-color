@@ -53,5 +53,5 @@ This package also provides an "aesthetically reasonable" set of common colors.
 
 ## Roadmap
 
-- [ ] Initial release: defines color type and basic conversion functions
+- [x] Initial release: defines color type and basic conversion functions
 - [ ] 1.1.0: implement common color manipulation functions
