@@ -43,6 +43,13 @@ view foreground =
 ```
 
 
+## Built-in colors
+
+This package also provides an "aesthetically reasonable" set of common colors.
+
+![](built-in-colors.png)
+
+
 ## Roadmap
 
 - [ ] Initial release: defines color type and basic conversion functions
