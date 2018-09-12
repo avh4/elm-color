@@ -11,10 +11,16 @@ module Color exposing
     , lightGray, gray, darkGray
     )
 
-{-| Module for working with colors. Allows creating colors via either
-[sRGB](https://en.wikipedia.org/wiki/RGB_color_model) values
-[HSL](https://en.wikipedia.org/wiki/HSL_and_HSV) values, or
-[Hex strings](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet).
+{-| The this package defines a standard `Color` type
+with the hope that all Elm packages that produce colors and
+all Elm packages that consume colors will use this type
+to allow all such packages to easily interoperate
+for the ultimate benefit of all Elm developers.
+
+Note about color space conversions:
+When converting between RGB and HSL, this module produce results consistent with
+the algorithm specified in the CSS Color Module Level 3,
+[Section 4.2.4. HSL color values](https://www.w3.org/TR/css-color-3/#hsl-color).
 
 
 # Types
@@ -98,11 +104,15 @@ type Color
 {-| Creates a color from a record of RGBA values (red, green, blue, alpha) between 0.0 and 1.0 (inclusive).
 
 The RGB values are interpreted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
-which is the standard for the Internet (HTML, CSS, and SVG), as well as digital images and printing.
+which is the color space specified by the HTML, [CSS](https://www.w3.org/TR/css-color-3/#rgb-color),
+and [SVG](https://www.w3.org/Graphics/SVG/1.1/color.html) specs
+(and is also widely considered the default color space for digital images that do not explicitly contain color space information).
 
 This is a strict function that will force you to name all channel parameters, to avoid mixing them up.
 
-See also: [`rgba`](#rgba)
+See also:
+
+If you want to be more concise, see [`rgba`](#rgba) or [`rgb`](#rgb).
 
 -}
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
@@ -110,11 +120,13 @@ fromRgba components =
     RgbaSpace components.red components.green components.blue components.alpha
 
 
-{-| Creates a `Color` from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
+{-| Creates a color from RGBA (red, green, blue, alpha) values between 0.0 and 1.0 (inclusive).
 
-This is a convenience function for making a color value without needing to use a record.
+See also:
 
-See also: [`fromRgba`](#fromRgba)
+If you want to be more concise and want full alpha, see [`rgb`](#rgb).
+
+If you want to be more explicit with parameter names, see [`fromRgba`](#fromRgba).
 
 -}
 rgba : Float -> Float -> Float -> Float -> Color
@@ -126,7 +138,13 @@ rgba r g b a =
 
 This is a convenience function for making a color value with full opacity.
 
-See also: [`rgba`](#rgba)
+See also:
+
+If you want to pass RGB values as `Int` values between 0 and 255, see [`rgb255`](#rgb255).
+
+If you need to provide an alpha value, see [`rgba`](#rgba).
+
+If you want to be more explicit with parameter names, see [`fromRgba`](#fromRgba).
 
 -}
 rgb : Float -> Float -> Float -> Color
@@ -134,12 +152,13 @@ rgb r g b =
     RgbaSpace r g b 1.0
 
 
-{-| Creates a color from RGB (red, green, blue) 8-bit integer values between 0 and 255.
+{-| Creates a color from RGB (red, green, blue) integer values between 0 and 255.
 
 This is a convenience function if you find passing RGB channels as integers scaled to 255 more intuitive.
 
-Note that this is less fine-grained than passing the channels as `Float` between 0.0 and 1.0, since
-there are only 2^8=256 possible values for each channel.
+See also:
+
+If you want to provide RGB values as `Float` values between 0.0 and 1.0, see [`rgb`](#rgb).
 
 -}
 rgb255 : Int -> Int -> Int -> Color
@@ -155,9 +174,9 @@ scaleFrom255 c =
 {-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
 values between 0.0 and 1.0 (inclusive).
 
-This is a strict function that will force you to name all channel parameters, to avoid mixing them up.
+See also:
 
-See also: [`hsla`](#hsla)
+If you want to be more concise, see [`hsla`](#hsla) or [`hsl`](#hsl).
 
 -}
 fromHsla : { hue : Float, saturation : Float, lightness : Float, alpha : Float } -> Color
@@ -168,9 +187,11 @@ fromHsla { hue, saturation, lightness, alpha } =
 {-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
 values between 0.0 and 1.0 (inclusive).
 
-This is a convenience function to construct colors from HSLA without needing to construct a record first.
+See also:
 
-See also: [`fromHsla`](#fromHsla)
+If you want to be more concise and want full alpha, see [`hsl`](#hsl).
+
+If you want to be more explicit with parameter names, see [`fromHsla`](#fromHsla).
 
 -}
 hsla : Float -> Float -> Float -> Float -> Color
@@ -225,12 +246,14 @@ hsla hue sat light alpha =
     RgbaSpace r g b alpha
 
 
-{-| Creates a color from [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
+{-| Creates a color from [HSL](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness)
 values between 0.0 and 1.0 (inclusive).
 
-This is a convenience function to construct colors from HSL without needing to construct a record first.
+See also:
 
-See also: [`hsla`](#hsla)
+If you need to provide an alpha value, see [`hsla`](#hsla).
+
+If you want to be more explicit with parameter names, see [`fromHsla`](#fromHsla).
 
 -}
 hsl : Float -> Float -> Float -> Color
@@ -239,7 +262,7 @@ hsl h s l =
 
 
 {-| Extract the [HSLA](https://en.wikipedia.org/wiki/HSL_and_HSV) (hue, saturation, lightness, alpha)
-components from a `Color` value.
+components from a color.
 The component values will be between 0.0 and 1.0 (inclusive).
 -}
 toHsla : Color -> { hue : Float, saturation : Float, lightness : Float, alpha : Float }
@@ -294,11 +317,13 @@ toHsla (RgbaSpace r g b a) =
     }
 
 
-{-| Extract the RGBA (red, green, blue, alpha) components from a `Color` value.
+{-| Extract the RGBA (red, green, blue, alpha) components from a color.
 The component values will be between 0.0 and 1.0 (inclusive).
 
 The RGB values are interpreted in the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space,
-which is the standard for the Internet (HTML, CSS, and SVG), as well as digital images and printing.
+which is the color space specified by the HTML, [CSS](https://www.w3.org/TR/css-color-3/#rgb-color),
+and [SVG](https://www.w3.org/Graphics/SVG/1.1/color.html) specs
+(and is also widely considered the default color space for digital images that do not explicitly contain color space information).
 
 -}
 toRgba : Color -> { red : Float, green : Float, blue : Float, alpha : Float }

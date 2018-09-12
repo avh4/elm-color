@@ -2,9 +2,8 @@
 
 # elm-color
 
-This package provides a standard representation of colors, encouraging sharing between packages.
-
 The this package defines a standard `Color` type
+(taking the place of `elm-lang/core#Color` in Elm 0.18)
 with the hope that all Elm packages that produce colors and
 all Elm packages that consume colors will use this type
 to allow all such packages to easily interoperate
@@ -12,6 +11,12 @@ for the ultimate benefit of all Elm developers.
 (If you are a package author and find that the `Color` type here does not meet your package's
 needs for passing colors to or from your package,
 please [report an issue](https://github.com/avh4/elm-color/issues/new) so we can improve this package to support your needs.)
+
+Future versions of this package will include additional common conversions
+and color manipulation functions.
+If you have used other color packages or written your own color-related functions in the past,
+please [create an issue](https://github.com/avh4/elm-color/issues/new) to describe your use case
+so we can better design additions to this package.
 
 
 ## Example
