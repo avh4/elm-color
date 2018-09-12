@@ -195,97 +195,96 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.within guaranteedTolerance a
                         ]
-        , describe "can convert from hex strings" <|
-            let
-                hashPrefix bool string =
-                    if bool then
-                        "#" ++ string
 
-                    else
-                        string
-
-                hex2ToUnit string =
-                    Hex.fromString (String.toLower string) |> Result.map (\x -> toFloat x / 255)
-            in
-            [ fuzz (tuple2 bool (tuple3 hex2 hex2 hex2))
-                "6-digit string"
-              <|
-                \( withHash, ( r, g, b ) ) ->
-                    String.concat [ r, g, b ]
-                        |> hashPrefix withHash
-                        |> Color.fromHex
-                        |> Maybe.withDefault (Color.rgb -1 -1 -1)
-                        |> Color.toRgba
-                        |> Expect.all
-                            [ .red >> Ok >> Expect.equal (hex2ToUnit r)
-                            , .green >> Ok >> Expect.equal (hex2ToUnit g)
-                            , .blue >> Ok >> Expect.equal (hex2ToUnit b)
-                            , .alpha >> Expect.equal 1.0
-                            ]
-            , fuzz (tuple2 bool (tuple3 hex hex hex))
-                "3-digit string"
-              <|
-                \( withHash, ( r, g, b ) ) ->
-                    String.fromList [ r, g, b ]
-                        |> hashPrefix withHash
-                        |> Color.fromHex
-                        |> Maybe.withDefault (Color.rgb -1 -1 -1)
-                        |> Color.toRgba
-                        |> Expect.all
-                            [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])
-                            , .green >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ g, g ])
-                            , .blue >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ b, b ])
-                            , .alpha >> Expect.equal 1.0
-                            ]
-            , fuzz (tuple3 bool (tuple3 hex2 hex2 hex2) hex2)
-                "8-digit string"
-              <|
-                \( withHash, ( r, g, b ), a ) ->
-                    String.concat [ r, g, b, a ]
-                        |> hashPrefix withHash
-                        |> Color.fromHex
-                        |> Maybe.withDefault (Color.rgb -1 -1 -1)
-                        |> Color.toRgba
-                        |> Expect.all
-                            [ .red >> Ok >> Expect.equal (hex2ToUnit r)
-                            , .green >> Ok >> Expect.equal (hex2ToUnit g)
-                            , .blue >> Ok >> Expect.equal (hex2ToUnit b)
-                            , .alpha >> Ok >> Expect.equal (hex2ToUnit a)
-                            ]
-            , fuzz (tuple3 bool (tuple3 hex hex hex) hex)
-                "4-digit string"
-              <|
-                \( withHash, ( r, g, b ), a ) ->
-                    String.fromList [ r, g, b, a ]
-                        |> hashPrefix withHash
-                        |> Color.fromHex
-                        |> Maybe.withDefault (Color.rgb -1 -1 -1)
-                        |> Color.toRgba
-                        |> Expect.all
-                            [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])
-                            , .green >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ g, g ])
-                            , .blue >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ b, b ])
-                            , .alpha >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ a, a ])
-                            ]
-            ]
-        , fuzz (tuple2 (tuple3 int255 int255 int255) unit)
-            "can convert to hex strings"
-          <|
-            \( ( r, g, b ), a ) ->
-                Color.rgba (toFloat r / 255) (toFloat g / 255) (toFloat b / 255) a
-                    |> Color.toHex
-                    |> Expect.all
-                        [ .hex
-                            >> Expect.equal
-                                (String.concat
-                                    [ "#"
-                                    , String.pad 2 '0' (Hex.toString r)
-                                    , String.pad 2 '0' (Hex.toString g)
-                                    , String.pad 2 '0' (Hex.toString b)
-                                    ]
-                                )
-                        , .alpha >> Expect.within guaranteedTolerance a
-                        ]
+        -- , describe "can convert from hex strings" <|
+        --     let
+        --         hashPrefix bool string =
+        --             if bool then
+        --                 "#" ++ string
+        --             else
+        --                 string
+        --         hex2ToUnit string =
+        --             Hex.fromString (String.toLower string) |> Result.map (\x -> toFloat x / 255)
+        --     in
+        --     [ fuzz (tuple2 bool (tuple3 hex2 hex2 hex2))
+        --         "6-digit string"
+        --       <|
+        --         \( withHash, ( r, g, b ) ) ->
+        --             String.concat [ r, g, b ]
+        --                 |> hashPrefix withHash
+        --                 |> Color.fromHex
+        --                 |> Maybe.withDefault (Color.rgb -1 -1 -1)
+        --                 |> Color.toRgba
+        --                 |> Expect.all
+        --                     [ .red >> Ok >> Expect.equal (hex2ToUnit r)
+        --                     , .green >> Ok >> Expect.equal (hex2ToUnit g)
+        --                     , .blue >> Ok >> Expect.equal (hex2ToUnit b)
+        --                     , .alpha >> Expect.equal 1.0
+        --                     ]
+        --     , fuzz (tuple2 bool (tuple3 hex hex hex))
+        --         "3-digit string"
+        --       <|
+        --         \( withHash, ( r, g, b ) ) ->
+        --             String.fromList [ r, g, b ]
+        --                 |> hashPrefix withHash
+        --                 |> Color.fromHex
+        --                 |> Maybe.withDefault (Color.rgb -1 -1 -1)
+        --                 |> Color.toRgba
+        --                 |> Expect.all
+        --                     [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])
+        --                     , .green >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ g, g ])
+        --                     , .blue >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ b, b ])
+        --                     , .alpha >> Expect.equal 1.0
+        --                     ]
+        --     , fuzz (tuple3 bool (tuple3 hex2 hex2 hex2) hex2)
+        --         "8-digit string"
+        --       <|
+        --         \( withHash, ( r, g, b ), a ) ->
+        --             String.concat [ r, g, b, a ]
+        --                 |> hashPrefix withHash
+        --                 |> Color.fromHex
+        --                 |> Maybe.withDefault (Color.rgb -1 -1 -1)
+        --                 |> Color.toRgba
+        --                 |> Expect.all
+        --                     [ .red >> Ok >> Expect.equal (hex2ToUnit r)
+        --                     , .green >> Ok >> Expect.equal (hex2ToUnit g)
+        --                     , .blue >> Ok >> Expect.equal (hex2ToUnit b)
+        --                     , .alpha >> Ok >> Expect.equal (hex2ToUnit a)
+        --                     ]
+        --     , fuzz (tuple3 bool (tuple3 hex hex hex) hex)
+        --         "4-digit string"
+        --       <|
+        --         \( withHash, ( r, g, b ), a ) ->
+        --             String.fromList [ r, g, b, a ]
+        --                 |> hashPrefix withHash
+        --                 |> Color.fromHex
+        --                 |> Maybe.withDefault (Color.rgb -1 -1 -1)
+        --                 |> Color.toRgba
+        --                 |> Expect.all
+        --                     [ .red >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ r, r ])
+        --                     , .green >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ g, g ])
+        --                     , .blue >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ b, b ])
+        --                     , .alpha >> Ok >> Expect.equal (hex2ToUnit <| String.fromList [ a, a ])
+        --                     ]
+        --     ]
+        -- , fuzz (tuple2 (tuple3 int255 int255 int255) unit)
+        --     "can convert to hex strings"
+        --   <|
+        --     \( ( r, g, b ), a ) ->
+        --         Color.rgba (toFloat r / 255) (toFloat g / 255) (toFloat b / 255) a
+        --             |> Color.toHex
+        --             |> Expect.all
+        --                 [ .hex
+        --                     >> Expect.equal
+        --                         (String.concat
+        --                             [ "#"
+        --                             , String.pad 2 '0' (Hex.toString r)
+        --                             , String.pad 2 '0' (Hex.toString g)
+        --                             , String.pad 2 '0' (Hex.toString b)
+        --                             ]
+        --                         )
+        --                 , .alpha >> Expect.within guaranteedTolerance a
+        --                 ]
         , fuzz (tuple2 (tuple3 (intRange 0 10000) (intRange 0 10000) (intRange 0 10000)) (intRange 0 1000))
             "can convert to CSS rgba strings"
           <|

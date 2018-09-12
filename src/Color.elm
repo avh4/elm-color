@@ -2,8 +2,7 @@ module Color exposing
     ( Color
     , rgb255, rgb, rgba, hsl, hsla
     , fromRgba, fromHsla
-    , fromHex
-    , toRgba, toHsla, toHex, toCssString
+    , toRgba, toHsla, toCssString
     , red, orange, yellow, green, blue, purple, brown
     , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
     , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
@@ -40,14 +39,9 @@ and are compatible with the corresponding `to...` function.
 @docs fromRgba, fromHsla
 
 
-## From strings
-
-@docs fromHex
-
-
 # Extracing values from colors
 
-@docs toRgba, toHsla, toHex, toCssString
+@docs toRgba, toHsla, toCssString
 
 
 # Built-in Colors

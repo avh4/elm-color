@@ -107,6 +107,4 @@ colorExample label color =
         , Html.Attributes.style "vertical-align" "bottom"
         ]
         [ Html.text label
-        , Html.br [] []
-        , Html.text (Color.toHex color).hex
         ]
