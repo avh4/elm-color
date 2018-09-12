@@ -112,7 +112,7 @@ This is a strict function that will force you to name all channel parameters, to
 
 See also:
 
-If you want to be more concise, see [`rgba`](#rgba) or [`rgb`](#rgb).
+  - If you want to be more concise, see [`rgba`](#rgba) or [`rgb`](#rgb).
 
 -}
 fromRgba : { red : Float, green : Float, blue : Float, alpha : Float } -> Color
@@ -124,9 +124,8 @@ fromRgba components =
 
 See also:
 
-If you want to be more concise and want full alpha, see [`rgb`](#rgb).
-
-If you want to be more explicit with parameter names, see [`fromRgba`](#fromRgba).
+  - If you want to be more concise and want full alpha, see [`rgb`](#rgb).
+  - If you want to be more explicit with parameter names, see [`fromRgba`](#fromRgba).
 
 -}
 rgba : Float -> Float -> Float -> Float -> Color
@@ -140,11 +139,9 @@ This is a convenience function for making a color value with full opacity.
 
 See also:
 
-If you want to pass RGB values as `Int` values between 0 and 255, see [`rgb255`](#rgb255).
-
-If you need to provide an alpha value, see [`rgba`](#rgba).
-
-If you want to be more explicit with parameter names, see [`fromRgba`](#fromRgba).
+  - If you want to pass RGB values as `Int` values between 0 and 255, see [`rgb255`](#rgb255).
+  - If you need to provide an alpha value, see [`rgba`](#rgba).
+  - If you want to be more explicit with parameter names, see [`fromRgba`](#fromRgba).
 
 -}
 rgb : Float -> Float -> Float -> Color
@@ -158,7 +155,7 @@ This is a convenience function if you find passing RGB channels as integers scal
 
 See also:
 
-If you want to provide RGB values as `Float` values between 0.0 and 1.0, see [`rgb`](#rgb).
+  - If you want to provide RGB values as `Float` values between 0.0 and 1.0, see [`rgb`](#rgb).
 
 -}
 rgb255 : Int -> Int -> Int -> Color
@@ -176,7 +173,7 @@ values between 0.0 and 1.0 (inclusive).
 
 See also:
 
-If you want to be more concise, see [`hsla`](#hsla) or [`hsl`](#hsl).
+  - If you want to be more concise, see [`hsla`](#hsla) or [`hsl`](#hsl).
 
 -}
 fromHsla : { hue : Float, saturation : Float, lightness : Float, alpha : Float } -> Color
@@ -189,9 +186,8 @@ values between 0.0 and 1.0 (inclusive).
 
 See also:
 
-If you want to be more concise and want full alpha, see [`hsl`](#hsl).
-
-If you want to be more explicit with parameter names, see [`fromHsla`](#fromHsla).
+  - If you want to be more concise and want full alpha, see [`hsl`](#hsl).
+  - If you want to be more explicit with parameter names, see [`fromHsla`](#fromHsla).
 
 -}
 hsla : Float -> Float -> Float -> Float -> Color
@@ -251,9 +247,8 @@ values between 0.0 and 1.0 (inclusive).
 
 See also:
 
-If you need to provide an alpha value, see [`hsla`](#hsla).
-
-If you want to be more explicit with parameter names, see [`fromHsla`](#fromHsla).
+  - If you need to provide an alpha value, see [`hsla`](#hsla).
+  - If you want to be more explicit with parameter names, see [`fromHsla`](#fromHsla).
 
 -}
 hsl : Float -> Float -> Float -> Color
