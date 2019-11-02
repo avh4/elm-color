@@ -556,17 +556,15 @@ toCssString (RgbaSpace r g b a) =
         roundTo x =
             ((x * 1000) |> round |> toFloat) / 1000
     in
-    String.concat
-        [ "rgba("
-        , String.fromFloat (pct r)
-        , "%,"
-        , String.fromFloat (pct g)
-        , "%,"
-        , String.fromFloat (pct b)
-        , "%,"
-        , String.fromFloat (roundTo a)
-        , ")"
-        ]
+    "rgba("
+        ++ String.fromFloat (pct r)
+        ++ "%,"
+        ++ String.fromFloat (pct g)
+        ++ "%,"
+        ++ String.fromFloat (pct b)
+        ++ "%,"
+        ++ String.fromFloat (roundTo a)
+        ++ ")"
 
 
 
