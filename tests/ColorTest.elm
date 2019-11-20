@@ -48,6 +48,26 @@ hex2 =
     Fuzz.map2 (\a b -> String.fromList [ a, b ]) hex hex
 
 
+areHclCoordsEqual expected actual =
+    (isNaN actual && isNaN expected) || (expected - 1.0e-6 <= actual && actual <= expected + 1.0e-6)
+
+
+expectHclEqual expected actual =
+    Expect.true (Debug.toString expected ++ "\n    ╷\n    │ expectHclEqual\n    ╵\n" ++ Debug.toString actual) <| areHclCoordsEqual actual.hue expected.hue && areHclCoordsEqual actual.chroma expected.chroma && areHclCoordsEqual actual.luminance expected.luminance && expected.alpha == actual.alpha
+
+
+
+-- sRGB is 8-bit
+
+
+areRgbCoordsEqual expected actual =
+    round (expected * 255) == round (actual * 255)
+
+
+expectRgbEqual expected actual =
+    Expect.true (Debug.toString expected ++ "\n    ╷\n    │ expectRgbEqual\n    ╵\n" ++ Debug.toString actual) <| areRgbCoordsEqual actual.red expected.red && areRgbCoordsEqual actual.green expected.green && areRgbCoordsEqual actual.blue expected.blue && expected.alpha == actual.alpha
+
+
 
 --
 -- Tests
@@ -168,6 +188,58 @@ all =
                         , .lightness >> Expect.within guaranteedTolerance l
                         , .alpha >> Expect.equal 1.0
                         ]
+        , fuzz (tuple2 (tuple3 (floatRange 0 100) (floatRange -160 160) (floatRange -160 160)) unit)
+            "can represent Lab colors (fromLab)"
+          <|
+            \( ( l, a, b ), alpha ) ->
+                Color.fromLab { l = l, a = a, b = b, alpha = alpha }
+                    |> Color.toLab
+                    |> Expect.all
+                        [ .l >> Expect.within (Absolute 0.001) l
+                        , .a >> Expect.within (Absolute 0.001) a
+                        , .b >> Expect.within (Absolute 0.001) b
+                        , .alpha >> Expect.within guaranteedTolerance alpha
+                        ]
+        , test "hcl exposes the hue, chroma, luminance values" <|
+            \() ->
+                Color.rgb255 170 187 204
+                    |> Color.toHcl
+                    |> expectHclEqual { hue = 252.37145234745182, chroma = 11.223567114593477, luminance = 74.96879980931759, alpha = 1 }
+        , test "hcl converts to proper RGB" <|
+            \() ->
+                Color.fromHcl { hue = 120, chroma = 30, luminance = 50, alpha = 0.4 }
+                    |> Color.toRgba
+                    |> expectRgbEqual { red = 105 / 255, green = 126 / 255, blue = 73 / 255, alpha = 0.4 }
+        , fuzz (tuple2 (tuple3 unit unit unit) unit)
+            "can represent Hcl colors (fromHcl)"
+          <|
+            \( ( r, g, b ), alpha ) ->
+                Color.rgba r g b alpha
+                    |> Color.toHcl
+                    |> Color.fromHcl
+                    |> Color.toRgba
+                    |> expectRgbEqual { red = r, green = g, blue = b, alpha = alpha }
+
+        -- [ \result ->
+        --     if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
+        --         -- hue does not apply
+        --         Expect.pass
+        --
+        --     else if h >= 1 then
+        --         result.hue |> Expect.within guaranteedTolerance (h - 1)
+        --
+        --     else
+        --         result.hue |> Expect.within guaranteedTolerance h
+        -- , \result ->
+        --     if result.lightness == 1 || result.lightness == 0 then
+        --         -- saturation does not apply
+        --         Expect.pass
+        --
+        --     else
+        --         result.saturation |> Expect.within guaranteedTolerance s
+        -- , .lightness >> Expect.within guaranteedTolerance l
+        -- , .alpha >> Expect.within guaranteedTolerance a
+        -- ]
         , fuzz (tuple2 (tuple3 unit unit unit) unit)
             "can represent HSLA colors (hsla)"
           <|

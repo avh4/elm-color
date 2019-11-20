@@ -1,9 +1,9 @@
 module Color exposing
     ( Color
     , rgb255, rgb, rgba, hsl, hsla
-    , fromRgba, fromHsla
+    , fromRgba, fromHsla, fromLab, fromHcl
     , toCssString
-    , toRgba, toHsla
+    , toRgba, toHsla, toLab, toHcl
     , red, orange, yellow, green, blue, purple, brown
     , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
     , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
@@ -43,7 +43,7 @@ These are the most concise ways to create colors:
 These ways to make colors make the names of each component explicit,
 and are compatible with the corresponding `to...` function.
 
-@docs fromRgba, fromHsla
+@docs fromRgba, fromHsla, fromLab, fromHcl
 
 
 # Using colors with HTML/CSS/SVG
@@ -53,7 +53,7 @@ and are compatible with the corresponding `to...` function.
 
 # Extracting values from colors
 
-@docs toRgba, toHsla
+@docs toRgba, toHsla, toLab, toHcl
 
 
 # Built-in Colors
@@ -93,6 +93,7 @@ that has never helped me remember which one I should be writing.
 -}
 
 import Bitwise exposing (shiftLeftBy)
+import Color.Lab as Lab
 
 
 {-| Represents a color.
@@ -324,6 +325,90 @@ and [SVG](https://www.w3.org/Graphics/SVG/1.1/color.html) specs
 toRgba : Color -> { red : Float, green : Float, blue : Float, alpha : Float }
 toRgba (RgbaSpace r g b a) =
     { red = r, green = g, blue = b, alpha = a }
+
+
+{-| Extract the L\*a\*b\* and alpha components in the [CIELAB color space](https://en.wikipedia.org/wiki/CIELAB_color_space).
+-}
+toLab : Color -> { l : Float, a : Float, b : Float, alpha : Float }
+toLab (RgbaSpace r g b alpha) =
+    let
+        result =
+            Lab.to r g b
+    in
+    { l = result.l, a = result.a, b = result.b, alpha = alpha }
+
+
+{-| Specify a color using the [CIELAB color space](https://en.wikipedia.org/wiki/CIELAB_color_space).
+
+The value of l is typically in the range [0, 100], while a and b are typically in [-160, +160].
+
+-}
+fromLab : { l : Float, a : Float, b : Float, alpha : Float } -> Color
+fromLab { l, a, b, alpha } =
+    let
+        result =
+            Lab.from l a b
+    in
+    RgbaSpace result.red result.green result.blue alpha
+
+
+{-| Extract the hue, chroma, luminance and alpha components in the [CIE Lch(ab)](https://en.wikipedia.org/wiki/HCL_color_space) color space.
+-}
+toHcl : Color -> { hue : Float, chroma : Float, luminance : Float, alpha : Float }
+toHcl color =
+    let
+        { l, a, b, alpha } =
+            toLab color
+
+        nan =
+            0 / 0
+    in
+    if a == 0 && b == 0 then
+        { hue = nan
+        , chroma =
+            if 0 < l && l < 100 then
+                nan
+
+            else
+                0
+        , luminance = l
+        , alpha = alpha
+        }
+
+    else
+        let
+            h =
+                atan2 b a * 180 / pi
+        in
+        { hue =
+            if h < 0 then
+                h + 360
+
+            else
+                h
+        , chroma = sqrt (a ^ 2 + b ^ 2)
+        , luminance = l
+        , alpha = alpha
+        }
+
+
+{-| Constructs a color in the [CIE Lch(ab)](https://en.wikipedia.org/wiki/HCL_color_space) color space.
+This is especially useful for generating and manipulating colors, as this is a perceptually uniform color space.
+
+The value of l is typically in the range [0, 100], c is typically in [0, 230], and h is typically in [0, 360).
+
+-}
+fromHcl : { hue : Float, chroma : Float, luminance : Float, alpha : Float } -> Color
+fromHcl { hue, chroma, luminance, alpha } =
+    if isNaN hue then
+        fromLab { l = luminance, a = 0, b = 0, alpha = alpha }
+
+    else
+        let
+            h =
+                hue * pi / 180
+        in
+        fromLab { l = luminance, a = cos h * chroma, b = sin h * chroma, alpha = alpha }
 
 
 {-| Returns a color represented by a valid 3- or 6-digit RGB hex string
