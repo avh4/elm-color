@@ -219,27 +219,6 @@ all =
                     |> Color.fromHcl
                     |> Color.toRgba
                     |> expectRgbEqual { red = r, green = g, blue = b, alpha = alpha }
-
-        -- [ \result ->
-        --     if result.lightness == 1 || result.lightness == 0 || result.saturation == 0 then
-        --         -- hue does not apply
-        --         Expect.pass
-        --
-        --     else if h >= 1 then
-        --         result.hue |> Expect.within guaranteedTolerance (h - 1)
-        --
-        --     else
-        --         result.hue |> Expect.within guaranteedTolerance h
-        -- , \result ->
-        --     if result.lightness == 1 || result.lightness == 0 then
-        --         -- saturation does not apply
-        --         Expect.pass
-        --
-        --     else
-        --         result.saturation |> Expect.within guaranteedTolerance s
-        -- , .lightness >> Expect.within guaranteedTolerance l
-        -- , .alpha >> Expect.within guaranteedTolerance a
-        -- ]
         , fuzz (tuple2 (tuple3 unit unit unit) unit)
             "can represent HSLA colors (hsla)"
           <|
