@@ -2,14 +2,14 @@ module Color exposing
     ( Color
     , rgb255, rgb, rgba, hsl, hsla
     , fromRgba, fromHsla
+    , fromHex
     , toCssString
-    , toRgba, toHsla
+    , toRgba, toHsla, toHex
     , red, orange, yellow, green, blue, purple, brown
     , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
     , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
     , white, lightGrey, grey, darkGrey, lightCharcoal, charcoal, darkCharcoal, black
     , lightGray, gray, darkGray
-    , fromHex, toHex
     )
 
 {-| This package defines a standard `Color` type
@@ -47,6 +47,14 @@ and are compatible with the corresponding `to...` function.
 @docs fromRgba, fromHsla
 
 
+## From hex string
+
+Although less robust than with numbers (like the `rgba` function)
+you can also parse a Color from a hex string.
+
+@docs fromHex
+
+
 # Using colors with HTML/CSS/SVG
 
 @docs toCssString
@@ -54,7 +62,7 @@ and are compatible with the corresponding `to...` function.
 
 # Extracting values from colors
 
-@docs toRgba, toHsla
+@docs toRgba, toHsla, toHex
 
 
 # Built-in Colors
