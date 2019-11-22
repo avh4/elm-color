@@ -9,6 +9,7 @@ module Color exposing
     , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
     , white, lightGrey, grey, darkGrey, lightCharcoal, charcoal, darkCharcoal, black
     , lightGray, gray, darkGray
+    , fromHex, toHex
     )
 
 {-| This package defines a standard `Color` type
