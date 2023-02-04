@@ -493,11 +493,7 @@ unsafeInt255Digits n =
             n // 16
 
         digit0 =
-            if digit1 /= 0 then
-                modBy (digit1 * 16) n
-
-            else
-                n
+            n - digit1 * 16
     in
     ( digit1, digit0 )
 
